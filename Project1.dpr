@@ -24,6 +24,8 @@ uses
 
 begin
   Application.Initialize;
+  //Application.MainFormOnTaskBar := false;
+  Application.Title := 'Спецификации';
   Application.CreateForm(TForm2, Form2);
   Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TForm11, Form11);

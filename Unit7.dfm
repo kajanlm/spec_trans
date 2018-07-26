@@ -1,6 +1,6 @@
 object Form7: TForm7
-  Left = 158
-  Top = 102
+  Left = 165
+  Top = 252
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Form7'
@@ -441,7 +441,6 @@ object Form7: TForm7
     Active = True
     Aggregates = <>
     Connection = Form2.SQLConnection1
-    DataSet.Active = True
     DataSet.CommandText = 
       'select spec_id, nomer, project_id, name,SPEC_NAME_BLOCK,vid_dok ' +
       'from SPEC_NAME'
@@ -606,6 +605,21 @@ object Form7: TForm7
         Name = 'section'
         DataType = ftString
         Size = 20
+      end
+      item
+        Name = 'post'
+        DataType = ftString
+        Size = 255
+      end
+      item
+        Name = 'rasp'
+        DataType = ftString
+        Size = 255
+      end
+      item
+        Name = 'reg_nad'
+        DataType = ftString
+        Size = 50
       end
       item
         Name = 'VED_MAT_UNIQ'

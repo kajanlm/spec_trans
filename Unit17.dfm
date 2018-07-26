@@ -1,10 +1,10 @@
 object sn_mat: Tsn_mat
-  Left = 435
-  Top = 217
+  Left = 411
+  Top = 221
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1085#1072#1073#1078#1077#1085#1080#1103
-  ClientHeight = 695
+  ClientHeight = 606
   ClientWidth = 1098
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -255,6 +255,7 @@ object sn_mat: Tsn_mat
     Width = 177
     Height = 25
     Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
+    Enabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -270,6 +271,7 @@ object sn_mat: Tsn_mat
     Width = 113
     Height = 25
     Caption = #1058#1088#1072#1085#1089#1087#1086#1088#1090
+    Enabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -300,6 +302,7 @@ object sn_mat: Tsn_mat
     Width = 105
     Height = 25
     Caption = #1057#1054#1061#1056#1040#1053#1048#1058#1068
+    Enabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -308,14 +311,6 @@ object sn_mat: Tsn_mat
     ParentFont = False
     TabOrder = 9
     OnClick = Button4Click
-  end
-  object Edit1: TEdit
-    Left = 376
-    Top = 56
-    Width = 121
-    Height = 21
-    TabOrder = 10
-    Text = 'Edit1'
   end
   object Query1: TSQLQuery
     Params = <>

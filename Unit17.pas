@@ -28,7 +28,6 @@ type
     Label4: TLabel;
     Button3: TButton;
     Button4: TButton;
-    Edit1: TEdit;
     procedure FormShow(Sender: TObject);
     procedure cb_projectChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -40,16 +39,18 @@ type
   private
     procedure CheckLockSpec(WarnNeed : boolean);
     procedure UnlockCurrentSpec;
+    procedure ClearDataSet;
     { Private declarations }
   public
     Index1 : integer;
+    DataChanged : boolean;
     procedure Alert(t,s : string);
     { Public declarations }
   end;
 
 var
   sn_mat: Tsn_mat;
-  SELECTED_PROJECT, LoginLock : string;
+  SELECTED_PROJECT, SELECTED_SPEC, LoginLock : string;
   OnlyReadWE : boolean;
 
 implementation
@@ -63,52 +64,31 @@ begin
 MessageBox(0, pChar(s), pChar(t), mb_Ok+MB_ICONINFORMATION);
 end;
 
-function StrTok(Phrase: Pchar; Delimeter: PChar): Pchar;
-const
-  tokenPtr: PChar = nil;
-  workPtr: PChar = nil;
-var
-  delimPtr: Pchar;
+procedure Tsn_mat.ClearDataSet;
 begin
-  if (Phrase <> nil) then
-    workPtr := Phrase
-  else
-    workPtr := tokenPtr;
-
-  if workPtr = nil then
-  begin
-    Result := nil;
-    Exit;
-  end;
-
-  delimPtr := StrPos(workPtr, Delimeter);
-
-  if (delimPtr <> nil) then
-  begin
-    delimPtr^ := Chr(0);
-    tokenPtr := delimPtr + 1
-  end
-  else
-    tokenPtr := nil;
-
-  Result := workPtr;
+while(not dbgrideh1.DataSource.Dataset.IsEmpty) do
+  dbgrideh1.DataSource.Dataset.Delete;
 end;
 
 procedure Tsn_mat.CheckLockSpec(WarnNeed : boolean);
 begin
+if SELECTED_SPEC = '' then
+  exit;
+  
 Query2.Close;
-Query2.SQL.Text:='SELECT SPEC_ID, SPEC_NAME_BLOCK FROM SPEC_NAME WHERE spec_id = ' + invi_cb_specs.Items[cb_specs.ItemIndex];
+Query2.SQL.Text:='SELECT SPEC_ID, SPEC_NAME_BLOCK FROM SPEC_NAME WHERE spec_id = ' + SELECTED_SPEC;
 Query2.Open;
 
 Label3.Visible := true;
 Label4.Visible := true;
 button3.Visible := true;
 
-if ((Query2.FieldByName('SPEC_NAME_BLOCK').AsString <> Form2.GLOBAL_LOGIN) and
-(Query2.FieldByName('SPEC_NAME_BLOCK').AsString <> '')) then
+LoginLock := Query2.FieldByName('SPEC_NAME_BLOCK').AsString;
+
+if ((LoginLock <> Form2.GLOBAL_LOGIN) and
+(LoginLock <> '')) then
 begin
   OnlyReadWE := true;
-  LoginLock := Query2.FieldByName('SPEC_NAME_BLOCK').AsString;
   Label4.Caption := 'ТОЛЬКО ЧТЕНИЕ';
 
   if WarnNeed then
@@ -118,8 +98,12 @@ end
 else
 begin
   OnlyReadWE := false;
-  LoginLock := '';
   Label4.Caption := 'ЧТЕНИЕ, ИЗМЕНЕНИЕ';
+
+  Query2.Close;
+  Query2.SQL.Text := 'UPDATE SPEC_NAME SET SPEC_NAME_BLOCK = ' + char(39) + Form2.GLOBAL_LOGIN + char(39) + ' WHERE spec_id = '
+  +SELECTED_SPEC;
+  Query2.ExecSQL;
 
   if WarnNeed then
     Alert('ЧТЕНИЕ, ИЗМНЕНИЕ', 'Спецификация открыта для редактирования, будьте внимательны!');
@@ -132,11 +116,11 @@ begin
 if ((cb_specs.enabled) and (cb_specs.ItemIndex <> -1)) then
   CheckLockSpec(false);
 
-if ((OnlyReadWE) and (LoginLock = Form2.GLOBAL_LOGIN)) then
+if LoginLock = Form2.GLOBAL_LOGIN then
 begin
   Query2.Close;
   Query2.SQL.Text := 'UPDATE SPEC_NAME SET SPEC_NAME_BLOCK = NULL WHERE spec_id = '
-+ invi_cb_specs.Items[cb_specs.ItemIndex];
+  +SELECTED_SPEC;
   Query2.ExecSQL;
 
   OnlyReadWE := false;
@@ -154,6 +138,8 @@ cb_project.Clear;
 invi_cb_project.Clear;
 cb_specs.Clear;
 invi_cb_specs.Clear;
+
+DataChanged := false;
 
 (*
 интерфейс с бд
@@ -191,6 +177,7 @@ if ClientDataSet1.Active=false then
 
 OnlyReadWE := false;
 LoginLock := '';
+SELECTED_SPEC := '';
 
 end;
 
@@ -210,6 +197,8 @@ SELECTED_PROJECT := invi_cb_project.Items[cb_project.ItemIndex];
 
 Label3.Visible := false;
 Label4.Visible := false;
+button1.Enabled := false;
+button2.Enabled := false;
 button3.Visible := false;
 
 Query1.Close;
@@ -230,6 +219,10 @@ end;
 
 cb_specs.Enabled := true;
 cb_specs.ItemIndex := -1;
+
+Button4.Enabled := false;
+DataChanged := false;
+ClearDataSet;
 end;
 
 procedure Tsn_mat.cb_specsChange(Sender: TObject);
@@ -237,13 +230,15 @@ procedure Tsn_mat.cb_specsChange(Sender: TObject);
 var
 
 tname,
-doc
+doc,
+ed
 : String;
 
 begin
 if cb_specs.ItemIndex = -1 then
   exit;
 
+UnlockCurrentSpec;
 (*
 if invi_cb_specs2.Items[cb_specs.ItemIndex] = '' then
 begin
@@ -255,18 +250,20 @@ begin
 end;
 *)
 
-while(not dbgrideh1.DataSource.Dataset.IsEmpty) do
-  dbgrideh1.DataSource.Dataset.Delete;
-
-CheckLockSpec(true);
+ClearDataSet;
 
 Query1.Close;
 Query1.SQL.Text := 'SELECT * FROM VED_MAT WHERE ved_id = '+invi_cb_specs.Items[cb_specs.ItemIndex];
 Query1.Open;
 
+SELECTED_SPEC := invi_cb_specs.Items[cb_specs.ItemIndex];
+CheckLockSpec(true);
+
 if Query1.RecordCount = 0 then
 begin
   alert('Пустая спецификация','Выбранная спецификация не содержит записей');
+  Button4.Enabled := false;
+  DataChanged := false;
   exit;
 end;
 
@@ -275,16 +272,23 @@ while Query1.Eof = false do
 begin
   dbgrideh1.DataSource.DataSet.Append;
 
-  showmessage(inttostr(pos('[#]', query1.FieldByName('name').asString)));
-
   tname := copy(query1.FieldByName('name').asString, 1, (pos('[#]', query1.FieldByName('name').asString) - 1));
   doc := copy(query1.FieldByName('name').asString, (pos('[#]', query1.FieldByName('name').asString) + 3), 50); //extreme value 50
   doc := doc + ' (' + query1.FieldByName('kod').asString + ')';
 
+  Query2.Close;
+  Query2.SQL.Text := 'SELECT namek FROM koded WHERE koded = ' + query1.FieldByName('ed').asString;
+  Query2.Open;
+
+  if Query2.RecordCount = 0 then
+    ed := 'Неизвестно'
+  else   
+    ed := AnsiLowerCase(query2.FieldByName('namek').AsString);
+
   DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := query1.FieldByName('poz').asString;
   DbgridEh1.DataSource.DataSet.FieldByName('name').Value := tname;
   DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := doc;
-  DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := query1.FieldByName('ed').asString;
+  DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := ed;
   DbgridEh1.DataSource.DataSet.FieldByName('col').Value := query1.FieldByName('kol').asString;
   DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := query1.FieldByName('mass_ed').asString;
   DbgridEh1.DataSource.DataSet.FieldByName('mass.full').Value := query1.FieldByName('mass').asString;
@@ -298,12 +302,18 @@ begin
 end;
 
 dbgrideh1.Enabled := true;
-showmessage('end');
+button1.Enabled := true;
+button2.Enabled := true;
+Button4.Enabled := false;
+DataChanged := false;
 
 end;
 
 procedure Tsn_mat.Button3Click(Sender: TObject);
 begin
+if cb_specs.ItemIndex = -1 then
+  exit;
+  
 CheckLockSpec(true);
 end;
 
@@ -326,7 +336,8 @@ try
 Excel := CreateOleObject('Excel.Application');
 except
 begin
-  Application.MessageBox('Приложение будет закрыто', 'Ошибка соединения', 0);
+  Application.MessageBox('Ошибка Excel', 'Не удается соединиться с Excel средой, приложение будет закрыто!', 0);
+  UnLockCurrentSpec;
   Application.Terminate;
 end;
 
@@ -377,12 +388,13 @@ begin
     Screen.Cursor := crHourGlass;
     self.Cursor := Screen.Cursor;
 
-    //DbGridEh1.Enabled := true;
     DbGridEh1.DataSource.DataSet.First;
-    //DbgridEh1.DataSource.DataSet.Edit;
     DbGridEh1.DataSource.DataSet.DisableControls;
 
     Application.ProcessMessages;
+
+    button1.Enabled := false;
+    button2.enabled := false;
 
     while index <= Excel.ActiveSheet.UsedRange.Rows.Count do
     begin
@@ -391,8 +403,7 @@ begin
       and ((trim(Excel.Cells[index, 3].text) <> 'Поз.') and (trim(Excel.Cells[index, 4].text) <> '2'))) then
       begin
 
-        //showmessage(Excel.Cells[index, 3].text+ '|' + Excel.Cells[index, 4].text);
-
+        DataChanged := true;
         dbgrideh1.DataSource.DataSet.Append;
 
         DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := Excel.Cells[index, 3].Text;
@@ -415,19 +426,25 @@ begin
       Application.ProcessMessages;
     end;
 
+    if DataChanged then
+      Button4.Enabled := true;
+
+    button1.Enabled := true;
+    button2.enabled := true;
+
   end;
 
   ProgressBar1.Visible := false;
   DbGridEh1.DataSource.DataSet.EnableControls;
   DbGridEh1.DataSource.DataSet.First;
-  //DbGridEh1.DataSource.DataSet.Delete;
 
   self.Cursor := crDefault;
   Screen.Cursor := OldCursor;
+
+  Excel.Quit;
+  Excel := Unassigned;
 end;
 
-//Excel.Quit;
-//Excel := Unassigned;
 end;
 
 procedure Tsn_mat.Button4Click(Sender: TObject);
@@ -451,9 +468,6 @@ begin
 if cb_specs.ItemIndex = -1 then
   exit;
 
-if MessageDlg('Вы действительно хотите сохранить изменения?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
-  exit;
-  
 CheckLockSpec(false);
 
 if OnlyReadWE then
@@ -461,6 +475,13 @@ begin
   alert('ТОЛЬКО ЧТЕНИЕ', 'Спецификация заблокирована пользователем: ' + LoginLock+#10#13+'Чтобы обновлять статус спецификации нажмите кнопку "Обновить")');
   exit;
 end;
+
+if MessageDlg('Вы действительно хотите сохранить изменения?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+  exit;
+       
+Query1.Close;
+Query1.SQL.Text := 'DELETE FROM VED_MAT WHERE ved_id = ' + SELECTED_SPEC;
+Query1.ExecSQL;
 
 dbgrideh1.DataSource.DataSet.First;
 
@@ -478,18 +499,26 @@ begin
 
   kod := trim(fL[1]);
   Delete(kod, length(fL[1]), 1);
-  showmessage(kod);
 
   tname := fL[0];
   tname := TrimRight(tname);
   tname := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString + '[#]' + tname;
-  showmessage(tname);
 
   freeandnil(fL);
 
   col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
   massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
   massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', [rfReplaceAll]);
+
+  Query1.Close;
+  Query1.SQL.Text := 'SELECT koded FROM koded WHERE trim(lower(namek)) = '
+  +char(39) + trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])) + char(39);
+  Query1.Open;
+
+  if Query1.RecordCount = 0 then //не нашли код ед. измерения, ставим по умолчанию "ШТУКИ"
+    ed := '796' //код ед. измерения "ШТУКИ"
+  else
+    ed := Query1.FieldByName('koded').AsString;
 
   SQL := 'INSERT INTO VED_MAT (stroka, poz, kod, NAME, ed, kol, mass_ed, mass, post, rasp, reg_nad, text, ved_id) '
   +'VALUES ('+chr(39)+'1'+chr(39)+', ' + chr(39) + dbgrideh1.DataSource.DataSet.FieldByName('pos').asString + chr(39) + ', '
@@ -503,16 +532,12 @@ begin
   +chr(39) + dbgrideh1.DataSource.DataSet.FieldByName('comment').asString + chr(39) + ', '
   +invi_cb_specs.Items[cb_specs.ItemIndex]+')';
 
-  edit1.text := sql;
-  showmessage(sql);
-
-  (*
   Query1.Close;
   Query1.SQL.Text := SQL;
   Query1.ExecSQL;
-  *)
 
-  //break;
+  DataChanged := false;
+
   dbgrideh1.DataSource.DataSet.Next;
 end;
 
@@ -520,6 +545,13 @@ end;
 
 procedure Tsn_mat.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+
+if ((DataChanged) and (MessageDlg(
+'Были внесены изменения, вы действительно хотите выйти без сохранения?', mtConfirmation, [mbYes, mbNo], 0) = mrNo)) then
+begin
+  Action:=caNone;
+  exit;
+end;
 
 UnLockCurrentSpec;
 
@@ -530,7 +562,7 @@ Query2.Free;
 
 OpenDialog1.Free;
 
-//Dbgrideh1.DataSource.DataSet.Fields.Clear;
+ClearDataSet;
 
 sn_mat.Close;
 end;
@@ -538,7 +570,7 @@ end;
 procedure Tsn_mat.cb_specsClick(Sender: TObject);
 begin
 if cb_specs.Enabled = false then
-  showmessage('Для загрузки списка спецификаций - выберите проект!');
+  alert('Подсказка', 'Для загрузки списка спецификаций - выберите проект!');
 
 end;
 
