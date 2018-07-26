@@ -400,11 +400,11 @@ if SimpleDataSet2.DATASet.Active=true then
 if SimpleDataSet2.Active=true then
   SimpleDataSet2.Active:=false;
  SimpleDataSet2.DATASet.CommandText:='Select ddd.nomer, ddd.spec_id, ddd.name,ddd.SPEC_NAME_BLOCK,ddd.vid_dok from'+
- ' ((Select SUBSTRING(nomer,1,100) as nomer, spec_id, name,SPEC_NAME_BLOCK,vid_dok from SPEC_NAME where project_id=1)'+
+ ' ((Select SUBSTRING(nomer,1,100) as nomer, spec_id, name,SPEC_NAME_BLOCK,vid_dok from SPEC_NAME where project_id=1 and (vid_dok <> 3 or vid_dok is null))'+
 'union all '+
 '(select SUBSTRING(nomer,1,100) as nomer, spec_id, name,SPEC_NAME_BLOCK,vid_dok from SPEC_NAME where project_id='+
 IntToStr(DBLookupComboBoxEH1.ListSource.DataSet.FieldByName(DBLookupComboBoxEH1.KeyField).Value)
-+' ))ddd order by nomer';
++' and (vid_dok <> 3 or vid_dok is null)))ddd order by nomer';
 
  SimpleDataSet2.DAtaSet.Active:=true;
 SimpleDataSet2.Active:=true;
@@ -1160,7 +1160,7 @@ With OpenDialog1 Do
 
                ListBox1.Items.Add(Excel.Sheets[qq].Name);
             end;
-
+            form15.Return_type := true;
             ShowModal();
           if Index1<>0 then
            index_list:=Index1;
@@ -1342,6 +1342,9 @@ procedure TForm7.ComboBox1Change(Sender: TObject);
 begin
          //  ShowMEssage(IntTostr(Combobox1.ItemIndex));
   // if change_function()=true then
+  if MessageDlg('Вы действительно хотите изменить вид спецификации?', mtConfirmation, [mbYes, mbNo], 0) = mrYes
+  then
+  begin
     change_function();
 
       SQLQUERY1.SQL.Text:='UPDATE  SPEC_NAME SET vid_dok ='''+IntToStr(ComboBox1.ItemIndex)+''' where spec_id='
@@ -1349,8 +1352,9 @@ begin
       SQLQUERY1.ExecSQL();
        SimpleDataSet2.Refresh;
        renew_table(nil,true);
-   
 
+
+       end;
 
       
 end;

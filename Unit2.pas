@@ -20,6 +20,7 @@ type
     N8: TMenuItem;
     N9: TMenuItem;
     SQLDataSet1: TSQLDataSet;
+    N10: TMenuItem;
     procedure N3Click(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure N2Click(Sender: TObject);
@@ -29,9 +30,13 @@ type
     procedure N8Click(Sender: TObject);
     procedure N9Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure N10Click(Sender: TObject);
+    procedure SQLConnection1Login(Database: TSQLConnection;
+      LoginParams: TStrings);
   private
     { Private declarations }
   public
+    GLOBAL_LOGIN : string;
     { Public declarations }
   end;
 
@@ -40,7 +45,7 @@ var
 
 implementation
 
-uses spec, Unit3,  Unit7,Unit8, Unit10,Unit11,Unit13,Unit16;
+uses spec, Unit3,  Unit7,Unit8, Unit10,Unit11,Unit13,Unit16, Unit17;
 
 {$R *.dfm}
 
@@ -102,18 +107,34 @@ end;
 procedure TForm2.FormShow(Sender: TObject);
 begin
 
-
-  SQLDATASet1.CommandText:='Select DISTINCT USER_GR from `Users` where login=(SELECT SUBSTRING_INDEX(USER(), ''@'', 1))';
+  SQLDATASet1.CommandText := '(SELECT SUBSTRING_INDEX(USER(), ''@'', 1))';
   SQLDATASet1.Active:=true;
 
- if    SQLDATASet1.FieldByName('USER_GR').AsString='1' then
+  GLOBAL_LOGIN := SQLDATASet1.Fields[0].AsString;
+
+  SQLDATASet1.Close;
+  SQLDATASet1.CommandText:='Select DISTINCT USER_GR from `Users` where login = ''' + GLOBAL_LOGIN+'''';
+  SQLDATASet1.Active:=true;
+
+ if SQLDATASet1.FieldByName('USER_GR').AsString='1' then
    begin
    MainMenu1.Items[0].Items[4].Visible:=true;
    MainMenu1.Items[0].Items[3].Visible:=true;
 
    end;
 
+end;
 
+procedure TForm2.N10Click(Sender: TObject);
+begin
+     Application.CreateForm(Tsn_mat, sn_mat);
+     sn_mat.ShowModal();
+end;
+
+procedure TForm2.SQLConnection1Login(Database: TSQLConnection;
+  LoginParams: TStrings);
+begin
+//showmessage(LoginParams.getText);
 end;
 
 end.

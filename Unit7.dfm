@@ -1,9 +1,11 @@
 object Form7: TForm7
-  Left = 291
-  Top = 161
-  Width = 1536
-  Height = 870
+  Left = 158
+  Top = 102
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Form7'
+  ClientHeight = 832
+  ClientWidth = 1445
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,6 +13,7 @@ object Form7: TForm7
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96
@@ -60,7 +63,7 @@ object Form7: TForm7
   object DBGridEh1: TDBGridEh
     Left = 16
     Top = 64
-    Width = 1481
+    Width = 1425
     Height = 713
     DataSource = DataSource4
     DrawMemoText = True
@@ -301,7 +304,7 @@ object Form7: TForm7
         Footers = <>
         Title.Caption = #1055#1088#1080#1084#1077#1095#1072#1085#1080#1077
         Title.Orientation = tohVertical
-        Width = 287
+        Width = 247
       end
       item
         EditButtons = <>
@@ -357,7 +360,7 @@ object Form7: TForm7
   end
   object Button1: TButton
     Left = 8
-    Top = 784
+    Top = 800
     Width = 75
     Height = 25
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
@@ -367,7 +370,7 @@ object Form7: TForm7
   end
   object Button2: TButton
     Left = 88
-    Top = 784
+    Top = 800
     Width = 75
     Height = 25
     Caption = #1047#1072#1082#1088#1099#1090#1100
@@ -406,10 +409,10 @@ object Form7: TForm7
     Left = 312
     Top = 8
     Width = 177
-    Height = 21
+    Height = 19
+    Style = csOwnerDrawFixed
     ItemHeight = 13
     TabOrder = 8
-    Text = #1054#1073#1097#1072#1103
     OnChange = ComboBox1Change
   end
   object ProgressBar1: TProgressBar
@@ -438,6 +441,7 @@ object Form7: TForm7
     Active = True
     Aggregates = <>
     Connection = Form2.SQLConnection1
+    DataSet.Active = True
     DataSet.CommandText = 
       'select spec_id, nomer, project_id, name,SPEC_NAME_BLOCK,vid_dok ' +
       'from SPEC_NAME'

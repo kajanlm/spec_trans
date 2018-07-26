@@ -22,12 +22,14 @@ type
     Button1: TButton;
     Button2: TButton;
     SQLQuery1: TSQLQuery;
+    CheckBox1: TCheckBox;
     procedure SimpleDataSet1projectGetText(Sender: TField;
       var Text: String; DisplayText: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button1Click(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -39,12 +41,9 @@ var
 
 implementation
 
-uses Unit8;
+uses Unit8, Unit17;
 
 {$R *.dfm}
-
-
-
 
 procedure TForm6.SimpleDataSet1projectGetText(Sender: TField;
   var Text: String; DisplayText: Boolean);
@@ -72,9 +71,16 @@ begin
 end;
 
 procedure TForm6.Button1Click(Sender: TObject);
+var vid_dok : string;
 begin
+if CheckBox1.Checked then
+  vid_dok := '3'
+else
+  vid_dok := 'null';
+
       try
-        SQLQuery1.SQL.Text:='Insert into SPEC_NAME (nomer,name,project_id) values ('''+Edit1.text+''','''+Edit2.text+''','+IntToStr(DBLookupComboBoxEH1.KeyValue)+')';
+        SQLQuery1.SQL.Text:='Insert into SPEC_NAME (nomer,name,project_id, vid_dok) values ('''+Edit1.text+''','''+Edit2.text+''','
+        +IntToStr(DBLookupComboBoxEH1.KeyValue)+', ' + vid_dok + ')';
          SQLQuery1.ExecSQL;
      Except
     on E : Exception do
@@ -85,6 +91,13 @@ begin
         Form8.SimpleDataSet1.DataSet.Active:=true;
         Form8.SimpleDataSet1.Active:=true;
        Close();
+end;
+
+procedure TForm6.CheckBox1Click(Sender: TObject);
+begin
+if checkbox1.Checked then
+  sn_mat.alert('Уведомление', 'Работать со спецификациями снабжениям возможно только в специальном модуле '
+  +'(Журнал спецификаций > Ввести спецификацию снабжения)');
 end;
 
 end.

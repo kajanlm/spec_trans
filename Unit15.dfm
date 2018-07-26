@@ -1,6 +1,6 @@
 object Form15: TForm15
-  Left = 598
-  Top = 311
+  Left = 635
+  Top = 348
   Width = 284
   Height = 230
   Caption = 'Form15'

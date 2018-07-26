@@ -17,6 +17,7 @@ type
   private
     { Private declarations }
   public
+    Return_Type : boolean;
     { Public declarations }
   end;
 
@@ -25,13 +26,17 @@ var
 
 implementation
 
-uses Unit7;
+uses Unit7, Unit17;
 
 {$R *.dfm}
 
 procedure TForm15.ListBox1DblClick(Sender: TObject);
 begin
-Form7.index1:=listBox1.ItemIndex+1;
+if return_type then
+  Form7.index1 := listBox1.ItemIndex + 1
+else
+  sn_mat.Index1 := ListBox1.ItemIndex + 1;
+  
 Close;
 end;
 

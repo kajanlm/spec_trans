@@ -2,7 +2,7 @@ object Form6: TForm6
   Left = 344
   Top = 244
   Width = 592
-  Height = 177
+  Height = 195
   Caption = #1044#1086#1073#1072#1074#1083#1077#1085#1080#1077' '#1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1080
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -65,7 +65,7 @@ object Form6: TForm6
   end
   object Button1: TButton
     Left = 8
-    Top = 104
+    Top = 128
     Width = 75
     Height = 25
     Caption = #1047#1072#1087#1080#1089#1072#1090#1100
@@ -74,12 +74,27 @@ object Form6: TForm6
   end
   object Button2: TButton
     Left = 104
-    Top = 104
+    Top = 128
     Width = 75
     Height = 25
     Caption = #1042#1099#1093#1086#1076
     TabOrder = 4
     OnClick = Button2Click
+  end
+  object CheckBox1: TCheckBox
+    Left = 8
+    Top = 104
+    Width = 225
+    Height = 17
+    Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1085#1072#1073#1078#1077#1085#1080#1103
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 5
+    OnClick = CheckBox1Click
   end
   object SimpleDataSet1: TSimpleDataSet
     Active = True
