@@ -1,10 +1,10 @@
 object sn_mat: Tsn_mat
-  Left = 411
-  Top = 221
+  Left = 371
+  Top = 267
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1085#1072#1073#1078#1077#1085#1080#1103
-  ClientHeight = 606
+  ClientHeight = 614
   ClientWidth = 1098
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -73,6 +73,30 @@ object sn_mat: Tsn_mat
     Font.Style = [fsBold, fsUnderline]
     ParentFont = False
     Visible = False
+  end
+  object Panel5: TPanel
+    Left = 720
+    Top = 568
+    Width = 8
+    Height = 33
+    Color = clSkyBlue
+    TabOrder = 14
+  end
+  object Panel4: TPanel
+    Left = 57
+    Top = 568
+    Width = 8
+    Height = 33
+    Color = clSkyBlue
+    TabOrder = 13
+  end
+  object Panel2: TPanel
+    Left = 184
+    Top = 568
+    Width = 8
+    Height = 33
+    Color = clSkyBlue
+    TabOrder = 11
   end
   object DBGridEh1: TDBGridEh
     Left = 17
@@ -221,7 +245,7 @@ object sn_mat: Tsn_mat
   end
   object invi_cb_project: TComboBox
     Left = 208
-    Top = 640
+    Top = 720
     Width = 41
     Height = 22
     Style = csOwnerDrawFixed
@@ -232,7 +256,7 @@ object sn_mat: Tsn_mat
   end
   object invi_cb_specs: TComboBox
     Left = 208
-    Top = 632
+    Top = 712
     Width = 41
     Height = 22
     Style = csOwnerDrawFixed
@@ -242,16 +266,16 @@ object sn_mat: Tsn_mat
     OnChange = cb_projectChange
   end
   object ProgressBar1: TProgressBar
-    Left = 320
-    Top = 568
-    Width = 433
-    Height = 17
+    Left = 16
+    Top = 552
+    Width = 1073
+    Height = 9
     TabOrder = 5
     Visible = False
   end
   object Button1: TButton
-    Left = 776
-    Top = 568
+    Left = 752
+    Top = 576
     Width = 177
     Height = 25
     Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
@@ -266,8 +290,8 @@ object sn_mat: Tsn_mat
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 968
-    Top = 568
+    Left = 960
+    Top = 576
     Width = 113
     Height = 25
     Caption = #1058#1088#1072#1085#1089#1087#1086#1088#1090
@@ -279,6 +303,7 @@ object sn_mat: Tsn_mat
     Font.Style = []
     ParentFont = False
     TabOrder = 7
+    OnClick = Button2Click
   end
   object Button3: TButton
     Left = 544
@@ -297,8 +322,8 @@ object sn_mat: Tsn_mat
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 104
-    Top = 568
+    Left = 72
+    Top = 576
     Width = 105
     Height = 25
     Caption = #1057#1054#1061#1056#1040#1053#1048#1058#1068
@@ -312,25 +337,73 @@ object sn_mat: Tsn_mat
     TabOrder = 9
     OnClick = Button4Click
   end
+  object Panel1: TPanel
+    Left = -24
+    Top = 568
+    Width = 1225
+    Height = 5
+    Color = clSkyBlue
+    TabOrder = 10
+  end
+  object Panel3: TPanel
+    Left = -127
+    Top = 600
+    Width = 1225
+    Height = 5
+    Color = clSkyBlue
+    TabOrder = 12
+  end
+  object Button5: TButton
+    Left = 304
+    Top = 576
+    Width = 105
+    Height = 25
+    Caption = #1044#1054#1041#1040#1042#1048#1058#1068
+    Enabled = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 15
+    OnClick = Button5Click
+  end
+  object Button6: TButton
+    Left = 496
+    Top = 576
+    Width = 105
+    Height = 25
+    Caption = #1059#1044#1040#1051#1048#1058#1068
+    Enabled = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 16
+    OnClick = Button6Click
+  end
   object Query1: TSQLQuery
     Params = <>
     Left = 8
-    Top = 624
+    Top = 704
   end
   object Query2: TSQLQuery
     Params = <>
     Left = 48
-    Top = 624
+    Top = 704
   end
   object OpenDialog1: TOpenDialog
     Filter = 'EXEL xls|*xls|EXEL xlsx|*xlsx|EXEL xlsm|*xlsm'
     Left = 168
-    Top = 624
+    Top = 704
   end
   object DataSource1: TDataSource
     DataSet = ClientDataSet1
     Left = 88
-    Top = 624
+    Top = 704
   end
   object ClientDataSet1: TClientDataSet
     Aggregates = <>
@@ -390,6 +463,6 @@ object sn_mat: Tsn_mat
     Params = <>
     StoreDefs = True
     Left = 128
-    Top = 624
+    Top = 704
   end
 end

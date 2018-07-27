@@ -123,12 +123,15 @@ begin
 
    end;
 
+ Application.HintColor := clGray;
+
 end;
 
 procedure TForm2.N10Click(Sender: TObject);
 begin
      Application.CreateForm(Tsn_mat, sn_mat);
      sn_mat.ShowModal();
+     sn_mat.Free; //при множественных открытиях чистим память
 end;
 
 procedure TForm2.SQLConnection1Login(Database: TSQLConnection;

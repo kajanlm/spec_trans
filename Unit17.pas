@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, FMTBcd, DB, SqlExpr, GridsEh, DBGridEh, ComCtrls, ExcelXP,
-  ComObj, DBClient;
+  ComObj, DBClient, ExtCtrls;
 
 type
   Tsn_mat = class(TForm)
@@ -15,7 +15,6 @@ type
     Query2: TSQLQuery;
     invi_cb_project: TComboBox;
     invi_cb_specs: TComboBox;
-    DBGridEh1: TDBGridEh;
     ProgressBar1: TProgressBar;
     OpenDialog1: TOpenDialog;
     Button1: TButton;
@@ -28,6 +27,14 @@ type
     Label4: TLabel;
     Button3: TButton;
     Button4: TButton;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    Button5: TButton;
+    Button6: TButton;
+    DBGridEh1: TDBGridEh;
     procedure FormShow(Sender: TObject);
     procedure cb_projectChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -36,6 +43,9 @@ type
     procedure cb_specsClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     procedure CheckLockSpec(WarnNeed : boolean);
     procedure UnlockCurrentSpec;
@@ -55,7 +65,7 @@ var
 
 implementation
 
-uses Unit2,Unit15;
+uses Unit2,Unit15, Unit18;
 
 {$R *.dfm}
 
@@ -113,7 +123,7 @@ end;
 
 procedure Tsn_mat.UnlockCurrentSpec;
 begin
-if ((cb_specs.enabled) and (cb_specs.ItemIndex <> -1)) then
+if ((cb_specs.enabled) and (SELECTED_SPEC <> '')) then
   CheckLockSpec(false);
 
 if LoginLock = Form2.GLOBAL_LOGIN then
@@ -186,6 +196,9 @@ begin
 if cb_project.ItemIndex = -1 then
   exit;
 
+if DataChanged then
+  alert('Предупреждение', 'Измененная вами спецификация была закрыта без сохранения!');
+
 UnlockCurrentSpec;
 
 (*
@@ -200,6 +213,8 @@ Label4.Visible := false;
 button1.Enabled := false;
 button2.Enabled := false;
 button3.Visible := false;
+button5.enabled := false;
+button6.enabled := false;
 
 Query1.Close;
 Query1.SQL.Text := 'Select ddd.nomer, ddd.spec_id, ddd.name,ddd.SPEC_NAME_BLOCK,ddd.vid_dok from '
@@ -222,6 +237,8 @@ cb_specs.ItemIndex := -1;
 
 Button4.Enabled := false;
 DataChanged := false;
+SELECTED_SPEC := '';
+
 ClearDataSet;
 end;
 
@@ -234,9 +251,15 @@ doc,
 ed
 : String;
 
+TIndex
+: Integer;
+
 begin
 if cb_specs.ItemIndex = -1 then
   exit;
+
+if DataChanged then
+  alert('Предупреждение', 'Измененная вами спецификация была закрыта без сохранения!');
 
 UnlockCurrentSpec;
 (*
@@ -259,13 +282,28 @@ Query1.Open;
 SELECTED_SPEC := invi_cb_specs.Items[cb_specs.ItemIndex];
 CheckLockSpec(true);
 
+button5.Enabled := true;
+button6.enabled := false;
+
 if Query1.RecordCount = 0 then
 begin
   alert('Пустая спецификация','Выбранная спецификация не содержит записей');
   Button4.Enabled := false;
+  button5.Enabled := true;
+  button6.Enabled := false;
   DataChanged := false;
   exit;
 end;
+
+button1.Enabled := false;
+button2.enabled := false;
+button3.Enabled := false;
+button5.Enabled := false;
+button6.Enabled := false;
+
+TIndex := 0;
+ProgressBar1.Max := Query1.RecordCount;
+ProgressBar1.Visible := true;
 
 dbgrideh1.DataSource.Dataset.First;
 while Query1.Eof = false do
@@ -297,20 +335,32 @@ begin
   DbgridEh1.DataSource.DataSet.FieldByName('n.reg').Value := query1.FieldByName('reg_nad').asString;
   DbgridEh1.DataSource.DataSet.FieldByName('comment').Value := query1.FieldByName('text').asString;
 
+  progressbar1.Position := TIndex;
+  inc(TIndex);
+
   dbgrideh1.DataSource.Dataset.Next;
   Query1.Next;
+
+  Application.ProcessMessages;
 end;
 
+ProgressBar1.Visible := false;
 dbgrideh1.Enabled := true;
 button1.Enabled := true;
 button2.Enabled := true;
-Button4.Enabled := false;
+button3.enabled := true;
+button5.Enabled := true;
+button6.Enabled := true;
 DataChanged := false;
 
 end;
 
 procedure Tsn_mat.Button3Click(Sender: TObject);
 begin
+
+if ProgressBar1.Visible = true then
+  exit;
+
 if cb_specs.ItemIndex = -1 then
   exit;
   
@@ -324,6 +374,9 @@ NameOfFile : string;
 WorkBookCount, qq, Index,  Index_list : integer;
 OldCursor : TCursor;
 begin
+
+if ProgressBar1.Visible = true then
+  exit;
 
 OldCursor := crDefault;
 Index1 := 0;
@@ -395,6 +448,10 @@ begin
 
     button1.Enabled := false;
     button2.enabled := false;
+    button3.Enabled := false;
+    button4.enabled := false;
+    button5.enabled := false;
+    button6.Enabled := false;
 
     while index <= Excel.ActiveSheet.UsedRange.Rows.Count do
     begin
@@ -431,6 +488,9 @@ begin
 
     button1.Enabled := true;
     button2.enabled := true;
+    button3.Enabled := true;
+    button5.enabled := true;
+    button6.enabled := true;
 
   end;
 
@@ -464,6 +524,9 @@ fL
 : TStringList;
 
 begin
+
+if ProgressBar1.Visible = true then
+  exit;
 
 if cb_specs.ItemIndex = -1 then
   exit;
@@ -546,10 +609,16 @@ end;
 procedure Tsn_mat.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 
+if ProgressBar1.Visible = true then
+begin
+  Action := caNone;
+  exit;
+end;
+
 if ((DataChanged) and (MessageDlg(
 'Были внесены изменения, вы действительно хотите выйти без сохранения?', mtConfirmation, [mbYes, mbNo], 0) = mrNo)) then
 begin
-  Action:=caNone;
+  Action := caNone;
   exit;
 end;
 
@@ -572,6 +641,46 @@ begin
 if cb_specs.Enabled = false then
   alert('Подсказка', 'Для загрузки списка спецификаций - выберите проект!');
 
+end;
+
+procedure Tsn_mat.Button5Click(Sender: TObject);
+begin
+
+if ProgressBar1.Visible = true then
+  exit;
+
+if OnlyReadWE then
+begin
+  alert('Только чтение', 'Редактиование спецификации не возможно!');
+  exit;
+end;
+
+Application.CreateForm(TForm18, Form18);
+form18.Caption := Form18.Caption + ': ' + cb_specs.Items[cb_specs.ItemIndex];
+form18.Showmodal;
+
+form18.Free; //память
+end;
+
+procedure Tsn_mat.Button6Click(Sender: TObject);
+begin
+
+if ProgressBar1.Visible = true then
+  exit;
+
+if OnlyReadWE then
+begin
+  alert('Только чтение', 'Редактиование спецификации не возможно!');
+  exit;
+end;
+
+end;
+
+procedure Tsn_mat.Button2Click(Sender: TObject);
+begin
+if ProgressBar1.Visible = true then
+  exit;
+  
 end;
 
 end.

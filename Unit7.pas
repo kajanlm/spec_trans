@@ -1165,6 +1165,7 @@ With OpenDialog1 Do
           if Index1<>0 then
            index_list:=Index1;
            end;
+           form15.free; //освобождаем память 
     if index_list<>0 then
       begin
      try
