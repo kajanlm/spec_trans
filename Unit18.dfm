@@ -5,7 +5,7 @@ object Form18: TForm18
   BorderStyle = bsSingle
   Caption = #1044#1086#1073#1072#1074#1083#1077#1085#1080#1077' '#1079#1072#1087#1080#1089#1080' '#1074' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
   ClientHeight = 479
-  ClientWidth = 592
+  ClientWidth = 596
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -118,9 +118,9 @@ object Form18: TForm18
   object Label7: TLabel
     Left = 32
     Top = 272
-    Width = 140
+    Width = 147
     Height = 20
-    Caption = #1054#1073#1097#1072#1103' '#1084#1072#1089#1089#1072', '#1082#1075
+    Caption = #1054#1073#1097#1072#1103' '#1084#1072#1089#1089#1072', '#1082#1075'*'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -17
@@ -220,11 +220,11 @@ object Form18: TForm18
     ParentFont = False
   end
   object Label15: TLabel
-    Left = 360
+    Left = 352
     Top = 208
-    Width = 221
+    Width = 239
     Height = 16
-    Caption = '('#1044#1077#1089#1103#1090#1080#1095#1085#1099#1077' '#1076#1088#1086#1073#1080' '#1095#1077#1088#1077#1079' '#1090#1086#1095#1082#1091')'
+    Caption = '('#1044#1077#1089#1103#1090#1080#1095#1085#1099#1077' '#1076#1088#1086#1073#1080' '#1095#1077#1088#1077#1079' '#1079#1072#1087#1103#1090#1091#1102')'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -248,9 +248,9 @@ object Form18: TForm18
   object Label17: TLabel
     Left = 376
     Top = 176
-    Width = 202
+    Width = 204
     Height = 16
-    Caption = '('#1054#1089#1085#1086#1074#1085#1072#1103' '#1080' '#1076#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1072#1103')'
+    Caption = '('#1054#1089#1085#1086#1074#1085#1072#1103' '#1080' '#1076#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1099#1077')'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -378,6 +378,8 @@ object Form18: TForm18
     Width = 145
     Height = 21
     TabOrder = 7
+    OnChange = EditsChanged
+    OnClick = EditsChanged
   end
   object Edit8: TEdit
     Left = 240

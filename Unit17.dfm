@@ -1,6 +1,6 @@
 object sn_mat: Tsn_mat
-  Left = 371
-  Top = 184
+  Left = 341
+  Top = 252
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1085#1072#1073#1078#1077#1085#1080#1103
@@ -411,7 +411,8 @@ object sn_mat: Tsn_mat
     FieldDefs = <
       item
         Name = 'pos'
-        DataType = ftInteger
+        DataType = ftString
+        Size = 20
       end
       item
         Name = 'name'

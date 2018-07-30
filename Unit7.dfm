@@ -1,11 +1,11 @@
 object Form7: TForm7
-  Left = 173
-  Top = 109
+  Left = 194
+  Top = 102
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Form7'
   ClientHeight = 832
-  ClientWidth = 1445
+  ClientWidth = 1446
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -62,7 +62,7 @@ object Form7: TForm7
   end
   object DBGridEh1: TDBGridEh
     Left = 16
-    Top = 64
+    Top = 72
     Width = 1425
     Height = 713
     DataSource = DataSource4

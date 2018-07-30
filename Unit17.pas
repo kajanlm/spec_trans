@@ -300,6 +300,7 @@ button6.enabled := false;
 if Query1.RecordCount = 0 then
 begin
   alert('Пустая спецификация','Выбранная спецификация не содержит записей');
+  button1.Enabled := true;
   Button4.Enabled := false;
   button5.Enabled := true;
   button6.Enabled := false;
@@ -315,6 +316,7 @@ button6.Enabled := false;
 
 TIndex := 0;
 ProgressBar1.Max := Query1.RecordCount;
+ProgressBar1.Position := 0;
 ProgressBar1.Visible := true;
 
 dbgrideh1.DataSource.DataSet.DisableControls;
@@ -325,30 +327,39 @@ while Query1.Eof = false do
 begin
   dbgrideh1.DataSource.DataSet.Append;
 
-  tname := copy(query1.FieldByName('name').asString, 1, (pos('[#]', query1.FieldByName('name').asString) - 1));
-  doc := copy(query1.FieldByName('name').asString, (pos('[#]', query1.FieldByName('name').asString) + 3), 50); //extreme value 50
-  doc := doc + ' (' + query1.FieldByName('kod').asString + ')';
+  if pos('Ч', query1.FieldByName('poz').asString) = 0 then
+  begin
+    tname := copy(query1.FieldByName('name').asString, 1, (pos('[#]', query1.FieldByName('name').asString) - 1));
+    doc := copy(query1.FieldByName('name').asString, (pos('[#]', query1.FieldByName('name').asString) + 3), 50); //extreme value 50
+    doc := doc + ' (' + query1.FieldByName('kod').asString + ')';
 
-  Query2.Close;
-  Query2.SQL.Text := 'SELECT namek FROM koded WHERE koded = ' + query1.FieldByName('ed').asString;
-  Query2.Open;
+    Query2.Close;
+    Query2.SQL.Text := 'SELECT namek FROM koded WHERE koded = ' + query1.FieldByName('ed').asString;
+    Query2.Open;
 
-  if Query2.RecordCount = 0 then
-    ed := 'Неизвестно'
-  else   
-    ed := AnsiLowerCase(query2.FieldByName('namek').AsString);
+    if Query2.RecordCount = 0 then
+      ed := 'Неизвестно'
+    else
+      ed := AnsiLowerCase(query2.FieldByName('namek').AsString);
 
-  DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := query1.FieldByName('poz').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('name').Value := tname;
-  DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := doc;
-  DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := ed;
-  DbgridEh1.DataSource.DataSet.FieldByName('col').Value := query1.FieldByName('kol').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := query1.FieldByName('mass_ed').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('mass.full').Value := query1.FieldByName('mass').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('from').Value := query1.FieldByName('post').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('location').Value := query1.FieldByName('rasp').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('n.reg').Value := query1.FieldByName('reg_nad').asString;
-  DbgridEh1.DataSource.DataSet.FieldByName('comment').Value := query1.FieldByName('text').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := query1.FieldByName('poz').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('name').Value := tname;
+    DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := doc;
+    DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := ed;
+    DbgridEh1.DataSource.DataSet.FieldByName('col').Value := query1.FieldByName('kol').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := query1.FieldByName('mass_ed').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('mass.full').Value := query1.FieldByName('mass').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('from').Value := query1.FieldByName('post').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('location').Value := query1.FieldByName('rasp').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('n.reg').Value := query1.FieldByName('reg_nad').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('comment').Value := query1.FieldByName('text').asString;
+
+  end
+  else
+  begin
+    DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := query1.FieldByName('poz').asString;
+    DbgridEh1.DataSource.DataSet.FieldByName('name').Value := query1.FieldByName('name').asString;
+  end;
 
   progressbar1.Position := TIndex;
   inc(TIndex);
@@ -390,11 +401,28 @@ CheckLockSpec(true);
 end;
 
 procedure Tsn_mat.Button1Click(Sender: TObject);
+
 var
-Excel : Variant;
-NameOfFile : string;
-WorkBookCount, qq, Index,  Index_list : integer;
-OldCursor : TCursor;
+
+Excel
+: Variant;
+
+NameOfFile,
+FSymb
+: string;
+
+WorkBookCount,
+qq,
+Index,
+Index_list
+: integer;
+
+OldCursor
+: TCursor;
+
+isOwnItem
+: boolean;
+
 begin
 
 if OnlyReadWE then
@@ -461,9 +489,10 @@ begin
        Excel.Worksheets['Завод'].Select;
     end;
 
+    ProgressBar1.Position := 0;
     ProgressBar1.Visible := true;
     ProgressBar1.Max := Excel.ActiveSheet.UsedRange.Rows.Count;
-    Index := 10;
+    Index := 8;
 
     OldCursor := Screen.Cursor;
     Screen.Cursor := crHourGlass;
@@ -483,25 +512,39 @@ begin
 
     while index <= Excel.ActiveSheet.UsedRange.Rows.Count do
     begin
-
-      if (((trim(Excel.Cells[index, 3].text) <> '') and (trim(Excel.Cells[index, 4].text) <> ''))
-      and ((trim(Excel.Cells[index, 3].text) <> 'Поз.') and (trim(Excel.Cells[index, 4].text) <> '2'))) then
+          
+      if (((trim(Excel.Cells[index, 3].text) <> '') or (trim(Excel.Cells[index, 4].text) <> '')) and
+      (trim(Excel.Cells[index, 3].text) <> 'Поз.') and (trim(Excel.Cells[index, 4].text) <> '2')) then
       begin
-
         DataChanged := true;
         dbgrideh1.DataSource.DataSet.Append;
 
-        DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := Excel.Cells[index, 3].Text;
-        DbgridEh1.DataSource.DataSet.FieldByName('name').Value := StringReplace(Excel.Cells[index, 4].Text, #10, ' ', [rfReplaceAll]);
-        DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := StringReplace(Excel.Cells[index, 6].Text, #10, ' ', [rfReplaceAll]);
-        DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := Excel.Cells[index, 10].Text;
-        DbgridEh1.DataSource.DataSet.FieldByName('col').Value := Excel.Cells[index, 12].Text;
-        DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := Excel.Cells[index, 14].Text;
-        DbgridEh1.DataSource.DataSet.FieldByName('mass.full').Value := Excel.Cells[index, 16].Text;
-        DbgridEh1.DataSource.DataSet.FieldByName('from').Value := StringReplace(Excel.Cells[index, 17].Text, #10, ' ', [rfReplaceAll]);
-        DbgridEh1.DataSource.DataSet.FieldByName('location').Value := StringReplace(Excel.Cells[index, 18].Text, #10, ' ', [rfReplaceAll]);
-        DbgridEh1.DataSource.DataSet.FieldByName('n.reg').Value := StringReplace(Excel.Cells[index, 19].Text, #10, ' ', [rfReplaceAll]);
-        DbgridEh1.DataSource.DataSet.FieldByName('comment').Value := StringReplace(Excel.Cells[index, 20].Text, #10, ' ', [rfReplaceAll]);
+        FSymb := copy(Excel.Cells[index, 4].Text, 1, 1);
+
+        if ((trim(Excel.Cells[index, 4].text) <> '') and (Form2.strOnlyDigits(FSymb))) then
+          isOwnItem := true
+        else
+          isOwnItem := false;
+
+        if not isOwnItem then
+        begin
+          DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := Excel.Cells[index, 3].Text;
+          DbgridEh1.DataSource.DataSet.FieldByName('name').Value := StringReplace(Excel.Cells[index, 4].Text, #10, ' ', [rfReplaceAll]);
+          DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := StringReplace(Excel.Cells[index, 6].Text, #10, ' ', [rfReplaceAll]);
+          DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := Excel.Cells[index, 10].Text;
+          DbgridEh1.DataSource.DataSet.FieldByName('col').Value := Excel.Cells[index, 12].Text;
+          DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := Excel.Cells[index, 14].Text;
+          DbgridEh1.DataSource.DataSet.FieldByName('mass.full').Value := Excel.Cells[index, 16].Text;
+          DbgridEh1.DataSource.DataSet.FieldByName('from').Value := StringReplace(Excel.Cells[index, 17].Text, #10, ' ', [rfReplaceAll]);
+          DbgridEh1.DataSource.DataSet.FieldByName('location').Value := StringReplace(Excel.Cells[index, 18].Text, #10, ' ', [rfReplaceAll]);
+          DbgridEh1.DataSource.DataSet.FieldByName('n.reg').Value := StringReplace(Excel.Cells[index, 19].Text, #10, ' ', [rfReplaceAll]);
+          DbgridEh1.DataSource.DataSet.FieldByName('comment').Value := StringReplace(Excel.Cells[index, 20].Text, #10, ' ', [rfReplaceAll]);
+        end
+        else
+        begin
+          DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := 'Ч' + FSymb;
+          DbgridEh1.DataSource.DataSet.FieldByName('name').Value := trimLeft(TrimRight(copy(Excel.Cells[index, 4].Text,2,length(Excel.Cells[index, 4].Text))));
+        end;
 
         DbgridEh1.DataSource.DataSet.Next;
       end;
@@ -553,6 +596,9 @@ massfull
 fL
 : TStringList;
 
+OldCursor
+: TCursor;
+
 begin
 
 if ProgressBar1.Visible = true then
@@ -571,50 +617,75 @@ end;
 
 if MessageDlg('Вы действительно хотите сохранить изменения?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
   exit;
-       
+
+button1.Enabled := false;
+button2.Enabled := false;
+button3.Enabled := false;
+button4.Enabled := false;
+button5.Enabled := false;
+button6.Enabled := false;
+
+
+OldCursor := Screen.Cursor;
+Screen.Cursor := crHourGlass;
+self.Cursor := Screen.Cursor;
+
 Query1.Close;
 Query1.SQL.Text := 'DELETE FROM VED_MAT WHERE ved_id = ' + SELECTED_SPEC;
 Query1.ExecSQL;
 
-ProgressBar1.Visible := false;
 ProgressBar1.Max := dbgrideh1.DataSource.DataSet.RecordCount;
+ProgressBar1.Position := 0;
+ProgressBar1.Visible := true;
 
 dbgrideh1.DataSource.DataSet.First;
 
 while dbgrideh1.DataSource.DataSet.Eof = false do
 begin
-
-  fL := TStringList.Create;
-  try
-    ExtractStrings(['('], [], PChar(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString), fL);
-  except
-    freeandnil(fL);
-    alert('Ошибка', 'Ошибка парсинга кода материала');
-    exit;
-  end;
-
-  kod := trim(fL[1]);
-  Delete(kod, length(fL[1]), 1);
-
-  tname := fL[0];
-  tname := TrimRight(tname);
-  tname := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString + '[#]' + tname;
-
-  freeandnil(fL);
-
-  col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
-  massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
-  massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', [rfReplaceAll]);
-
-  Query1.Close;
-  Query1.SQL.Text := 'SELECT koded FROM koded WHERE trim(lower(namek)) = '
-  +char(39) + trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])) + char(39);
-  Query1.Open;
-
-  if Query1.RecordCount = 0 then //не нашли код ед. измерения, ставим по умолчанию "ШТУКИ"
-    ed := '796' //код ед. измерения "ШТУКИ"
+  if pos('Ч',  dbgrideh1.DataSource.DataSet.FieldByName('pos').asString) <> 0 then
+  begin
+    kod := '';
+    tname := dbgrideh1.DataSource.DataSet.FieldByName('name').asString;
+    col := '';
+    massek := '';
+    massfull := '';
+    ed := '';
+  end
   else
-    ed := Query1.FieldByName('koded').AsString;
+  begin
+    fL := TStringList.Create;
+    try
+      ExtractStrings(['('], [], PChar(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString), fL);
+    except
+      freeandnil(fL);
+      alert('Ошибка', 'Ошибка парсинга кода материала');
+      exit;
+    end;
+
+    kod := trim(fL[1]);
+    Delete(kod, length(fL[1]), 1);
+
+    tname := fL[0];
+    tname := TrimRight(tname);
+    tname := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString + '[#]' + tname;
+
+    freeandnil(fL);
+
+    col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
+    massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
+    massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', [rfReplaceAll]);
+
+    Query1.Close;
+    Query1.SQL.Text := 'SELECT koded FROM koded WHERE trim(lower(namek)) = '
+    +char(39) + trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])) + char(39);
+    Query1.Open;
+
+    if Query1.RecordCount = 0 then //не нашли код ед. измерения, ставим по умолчанию "ШТУКИ"
+      ed := '796' //код ед. измерения "ШТУКИ"
+    else
+      ed := Query1.FieldByName('koded').AsString;
+
+  end;
 
   SQL := 'INSERT INTO VED_MAT (stroka, poz, kod, NAME, ed, kol, mass_ed, mass, post, rasp, reg_nad, text, ved_id) '
   +'VALUES ('+chr(39)+'1'+chr(39)+', ' + chr(39) + dbgrideh1.DataSource.DataSet.FieldByName('pos').asString + chr(39) + ', '
@@ -626,7 +697,7 @@ begin
   +chr(39) + dbgrideh1.DataSource.DataSet.FieldByName('location').asString + chr(39) + ', '
   +chr(39) + dbgrideh1.DataSource.DataSet.FieldByName('n.reg').asString + chr(39) + ', '
   +chr(39) + dbgrideh1.DataSource.DataSet.FieldByName('comment').asString + chr(39) + ', '
-  +invi_cb_specs.Items[cb_specs.ItemIndex]+')';
+  +SELECTED_SPEC+')';
 
   Query1.Close;
   Query1.SQL.Text := SQL;
@@ -641,7 +712,19 @@ begin
   Application.ProcessMessages;
 end;
 
+self.Cursor := crDefault;
+Screen.Cursor := OldCursor;
+
+button1.Enabled := true;
+button2.Enabled := true;
+button3.Enabled := true;
+button5.Enabled := true;
+
+if dbgrideh1.DataSource.DataSet.RecordCount <> 0 then
+  button6.Enabled := true;
+
 ProgressBar1.Visible := false;
+ProgressBar1.Position := 0;
 
 end;
 
@@ -713,8 +796,6 @@ begin
   exit;
 end;
 
-showmessage(inttostr(dbgrideh1.DataSource.Dataset.RecNo));
-
 if dbgrideh1.DataSource.DataSet.RecNo > 0 then
 begin
   Dbgrideh1.DataSource.DataSet.Edit;
@@ -746,7 +827,6 @@ massfull
 FDialog
 : TReplaceFlags;
 
-NMem,
 SType
 : Integer;
 
@@ -792,7 +872,7 @@ if SType <> 0 then
 begin
   //showmessage('Вы выбрали ' + inttostr(SType) + ' вид спецификации');
 
-  SaveDialog1.FileName := cb_project.Items[cb_project.ItemIndex]+'_'+cb_specs.Items[cb_specs.ItemIndex];
+  SaveDialog1.FileName := cb_project.Items[cb_project.ItemIndex]+'_'+cb_specs.Items[cb_specs.ItemIndex]+'.txt';
   FDialog := [ rfReplaceAll, rfIgnoreCase ];
 
   if SaveDialog1.Execute then
@@ -833,7 +913,7 @@ begin
         if ((pos('Ч', trim(DbGrideh1.DataSource.DataSet.FieldByName('pos').asString)) <> 0) or
         (pos('-', trim(DbGrideh1.DataSource.DataSet.FieldByName('pos').asString)) <> 0)) then
           writeln(HFile, inttostr(SType) + Chr(9) + DbGrideh1.DataSource.DataSet.FieldByName('pos').asString + Chr(9)
-          + Chr(9) + TrimRight(TrimLeft('Текст раздела')) + Chr(9) + Chr(9) + Chr(9) + Chr(9))
+          + Chr(9) + TrimRight(TrimLeft(DbGrideh1.DataSource.DataSet.FieldByName('name').asString)))
         else
         begin
           fL := TStringList.Create;
@@ -858,7 +938,6 @@ begin
 
             ProgressBar1.Visible := false;
             DbGridEh1.DataSource.DataSet.EnableControls;
-            Dbgrideh1.Enabled := true;
             DbGridEh1.DataSource.DataSet.First;
 
             self.Cursor := crDefault;
@@ -947,10 +1026,3 @@ Button4.Enabled := true;
 end;
 
 end.
-
-(*
-INSERT INTO VED_MAT (stroka, poz, kod, NAME, ed, kol, mass_ed, mass, post, rasp, reg_nad, text, ved_id)
-VALUES ('1', '14', '90006100012', 'Анемометр крыльчатый ручной  АСО-3[#]ГОСТ 6376-74', '', '1', '0,2', '0,2',
-'Закупка Завод «Гидромет-прибор» г. Сафоново Смоленской обл.', 'Рулевая  рубка', '', '', 352)
-
-*)

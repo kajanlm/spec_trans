@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 432
-  Top = 154
+  Left = 387
+  Top = 269
   Width = 839
   Height = 600
   Caption = #1057#1087#1088#1072#1074#1086#1095#1085#1080#1082
@@ -103,7 +103,7 @@ object Form1: TForm1
   object Label9: TLabel
     Left = 118
     Top = 520
-    Width = 42
+    Width = 3
     Height = 13
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed
@@ -127,14 +127,14 @@ object Form1: TForm1
   object Label11: TLabel
     Left = 8
     Top = 536
-    Width = 105
+    Width = 19
     Height = 13
     Caption = #1058#1080#1087
   end
   object Label12: TLabel
     Left = 118
     Top = 536
-    Width = 35
+    Width = 3
     Height = 13
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed

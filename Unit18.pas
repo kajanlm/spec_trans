@@ -76,7 +76,7 @@ error
 begin
 if trim(edit1.Text) = '' then
 begin
-  sn_mat.Alert('Нехватка данных', 'Заполните все обязательные поля!');
+  sn_mat.Alert('Нехватка данных', 'Заполните поле "Позиция"!');
   edit1.Color := clRed;
 
   Validate := false;
@@ -85,7 +85,7 @@ end;
 
 if trim(edit2.Text) = '' then
 begin
-  sn_mat.Alert('Нехватка данных', 'Заполните все обязательные поля!');
+  sn_mat.Alert('Нехватка данных', 'Заполните поле "Наименование"!');
   edit2.Color := clRed;
 
   Validate := false;
@@ -94,7 +94,7 @@ end;
 
 if ((trim(edit3.Text) = '') or (trim(edit12.Text) = '')) then
 begin
-  sn_mat.Alert('Нехватка данных', 'Заполните все обязательные поля!');
+  sn_mat.Alert('Нехватка данных', 'Заполните поля "Документ" и "КОД"!');
   edit3.Color := clRed;
   edit12.Color := clRed;
 
@@ -123,7 +123,7 @@ end;
 
 if trim(edit5.Text) = '' then
 begin
-  sn_mat.Alert('Нехватка данных', 'Заполните все обязательные поля!');
+  sn_mat.Alert('Нехватка данных', 'Заполните поле "Количество"!');
   edit5.Color := clRed;
 
   Validate := false;
@@ -132,8 +132,17 @@ end;
 
 if trim(edit6.Text) = '' then
 begin
-  sn_mat.Alert('Нехватка данных', 'Заполните все обязательные поля!');
+  sn_mat.Alert('Нехватка данных', 'Заполните поле "Масса ед. кг"!');
   edit6.Color := clRed;
+
+  Validate := false;
+  exit;
+end;
+
+if trim(edit7.Text) = '' then
+begin
+  sn_mat.Alert('Нехватка данных', 'Заполните поле "Общая масса, кг"!');
+  edit7.Color := clRed;
 
   Validate := false;
   exit;
@@ -181,7 +190,8 @@ procedure TForm18.Edit12KeyPress(Sender: TObject; var Key: Char);
 var
 
 fkod,
-skod
+skod,
+tkod
 : String;
 
 begin
@@ -192,22 +202,24 @@ begin
   invi_cb_ed.Clear;
 
   sn_mat.Query1.Close;
-  sn_mat.Query1.SQL.Text := 'SELECT koded_id, koded_koded_id2 FROM SPRAV where kod = "' + trim(edit12.Text) + '"';
+  sn_mat.Query1.SQL.Text := 'SELECT koded_id, koded_koded_id2, koded_koded_id_koded2 FROM SPRAV where kod = "' + trim(edit12.Text) + '"';
   sn_mat.Query1.Open;
 
   if sn_mat.Query1.RecordCount <> 0 then
   begin
     fkod := sn_mat.Query1.FieldByName('koded_id').asString;
     skod := sn_mat.Query1.FieldByName('koded_koded_id2').asString;
+    tkod := sn_mat.Query1.FieldByName('koded_koded_id_koded2').asString;
   end
   else
   begin
     fkod := '0';
     skod := '0';
+    tkod := '0';
   end;
 
   sn_mat.Query1.Close;
-  sn_mat.Query1.SQL.Text := 'SELECT namek, koded FROM koded WHERE koded_id = ' + fkod + ' or koded_id = ' + skod;
+  sn_mat.Query1.SQL.Text := 'SELECT namek, koded FROM koded WHERE koded_id in(' + fkod +',' + skod + ',' + tkod + ')';
   sn_mat.Query1.Open;
 
   if sn_mat.Query1.RecordCount <> 0 then
@@ -249,6 +261,7 @@ edit3.Color := clWhite;
 edit12.Color := clWhite;
 edit5.Color := clWhite;
 edit6.Color := clWhite;
+edit7.Color := clWhite;
 cb_ed.Color := clWhite;
 
 end;

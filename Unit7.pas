@@ -852,7 +852,7 @@ end;
 
 procedure TForm7.Button4Click(Sender: TObject);
 var f:textfile;
-FName:string;
+FName,CountOfTabs:string;
 flags:TReplaceFlags;
 eee:integer;
 begin
@@ -882,32 +882,47 @@ DBGridEh1.DataSource.DataSet.First;
               then
               begin
                if   TryStrToInt(COPY(trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString),2,1),eee)=true then
+               begin
+
+               if combobox1.ItemIndex = 1 then
+                CountOfTabs := Chr(9)+Chr(9)+Chr(9)
+               else
+                CountOfTabs := Chr(9)+Chr(9);
+
                   Writeln(f,trim(DBGridEh1.DataSource.DataSet.FieldByName('Stroka').asString)+Chr(9)+
-      trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+Chr(9)+Chr(9)+Chr(9)+
+      trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+CountOfTabs+
+      trim(DBGridEh1.DataSource.DataSet.FieldByName('KOD').asString)+' '+
+      trim(StringReplace(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('NAME').asString,#13,' ',[rfReplaceAll]),#10,' ',[rfReplaceAll])));
+              end;
+      end
+else
+  if  ((TryStrToInt(COPY(trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString),1,1),eee)=true )
+  and (COPY(trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString),2,1)='-')) then
+      begin
+
+               if combobox1.ItemIndex = 1 then
+                  CountOfTabs := Chr(9)+Chr(9)+Chr(9)
+               else
+                  CountOfTabs := Chr(9)+Chr(9);
+
+                  Writeln(f,trim(DBGridEh1.DataSource.DataSet.FieldByName('Stroka').asString)+Chr(9)+
+      trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+CountOfTabs+
       trim(DBGridEh1.DataSource.DataSet.FieldByName('KOD').asString)+' '+
       trim(StringReplace(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('NAME').asString,#13,' ',[rfReplaceAll]),#10,' ',[rfReplaceAll])));
       end
-else
-
-           if  TryStrToInt(COPY(trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString),1,1),eee)=true
-              then
-               if   (COPY(trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString),2,1)='-') then
-                  Writeln(f,trim(DBGridEh1.DataSource.DataSet.FieldByName('Stroka').asString)+Chr(9)+
-      trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+Chr(9)+Chr(9)+Chr(9)+
-      trim(DBGridEh1.DataSource.DataSet.FieldByName('KOD').asString)+' '+
-      trim(StringReplace(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('NAME').asString,#13,' ',[rfReplaceAll]),#10,' ',[rfReplaceAll])))
-
-
-
-
-
 else
   begin
      if  trim(DBGridEh1.DataSource.DataSet.FieldByName('ed4').asString)='' then
             ShowMEssage('ќЎ»Ѕ ј в строке '+DBGridEh1.DataSource.DataSet.FieldByName('Stroka').asString+' у '+
             DBGridEh1.DataSource.DataSet.FieldByName('NAME').asString+' неуказана ед изм');
+
+            if combobox1.ItemIndex = 1 then
+                CountOfTabs := Chr(9)+Chr(9)
+            else
+                CountOfTabs := Chr(9);
+
       Writeln(f,trim(DBGridEh1.DataSource.DataSet.FieldByName('Stroka').asString)+Chr(9)+
-      trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+Chr(9)+Chr(9)+
+      trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+CountOfTabs+
       trim(DBGridEh1.DataSource.DataSet.FieldByName('KOD').asString)+Chr(9)+
       trim(StringReplace(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('NAME').asString,#13,' ',[rfReplaceAll]),#10,' ',[rfReplaceAll]))+Chr(9)+
        trim(DBGridEh1.DataSource.DataSet.FieldByName('ed4').asString)+Chr(9)+
