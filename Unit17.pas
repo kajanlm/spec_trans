@@ -35,6 +35,7 @@ type
     Button5: TButton;
     Button6: TButton;
     DBGridEh1: TDBGridEh;
+    SaveDialog1: TSaveDialog;
     procedure FormShow(Sender: TObject);
     procedure cb_projectChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -46,6 +47,9 @@ type
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure DBGridEh1KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ClientDataSet1AfterEdit(DataSet: TDataSet);
   private
     procedure CheckLockSpec(WarnNeed : boolean);
     procedure UnlockCurrentSpec;
@@ -101,6 +105,10 @@ begin
   OnlyReadWE := true;
   Label4.Caption := 'ТОЛЬКО ЧТЕНИЕ';
 
+  dbgrideh1.DataSource.DataSet.DisableControls;
+  dbgrideh1.Enabled := true;
+  dbgrideh1.ReadOnly := true;
+
   if WarnNeed then
     Alert('ТОЛЬКО ЧТЕНИЕ', 'В данный момент спецификация заблокирована пользователем: ' +
     Query2.FieldByName('SPEC_NAME_BLOCK').AsString);
@@ -109,6 +117,10 @@ else
 begin
   OnlyReadWE := false;
   Label4.Caption := 'ЧТЕНИЕ, ИЗМЕНЕНИЕ';
+
+  dbgrideh1.DataSource.DataSet.EnableControls;
+  dbgrideh1.Enabled := true;
+  dbgrideh1.ReadOnly := false;
 
   Query2.Close;
   Query2.SQL.Text := 'UPDATE SPEC_NAME SET SPEC_NAME_BLOCK = ' + char(39) + Form2.GLOBAL_LOGIN + char(39) + ' WHERE spec_id = '
@@ -305,6 +317,9 @@ TIndex := 0;
 ProgressBar1.Max := Query1.RecordCount;
 ProgressBar1.Visible := true;
 
+dbgrideh1.DataSource.DataSet.DisableControls;
+dbgrideh1.Enabled := false;
+dbgrideh1.ReadOnly := true;
 dbgrideh1.DataSource.Dataset.First;
 while Query1.Eof = false do
 begin
@@ -345,7 +360,14 @@ begin
 end;
 
 ProgressBar1.Visible := false;
+dbgrideh1.DataSource.DataSet.EnableControls;
 dbgrideh1.Enabled := true;
+
+if OnlyReadWE then
+  dbgrideh1.ReadOnly := true
+else
+  dbgrideh1.ReadOnly := false;
+
 button1.Enabled := true;
 button2.Enabled := true;
 button3.enabled := true;
@@ -374,6 +396,12 @@ NameOfFile : string;
 WorkBookCount, qq, Index,  Index_list : integer;
 OldCursor : TCursor;
 begin
+
+if OnlyReadWE then
+begin
+  Alert('ТОЛЬКО ЧТЕНИЕ', 'В данный момент спецификация заблокирована пользователем: ' + LoginLock);
+  exit;
+end;
 
 if ProgressBar1.Visible = true then
   exit;
@@ -496,6 +524,8 @@ begin
 
   ProgressBar1.Visible := false;
   DbGridEh1.DataSource.DataSet.EnableControls;
+  Dbgrideh1.Enabled := true;
+  dbgrideh1.ReadOnly := false;
   DbGridEh1.DataSource.DataSet.First;
 
   self.Cursor := crDefault;
@@ -545,6 +575,9 @@ if MessageDlg('Вы действительно хотите сохранить изменения?', mtConfirmation, [m
 Query1.Close;
 Query1.SQL.Text := 'DELETE FROM VED_MAT WHERE ved_id = ' + SELECTED_SPEC;
 Query1.ExecSQL;
+
+ProgressBar1.Visible := false;
+ProgressBar1.Max := dbgrideh1.DataSource.DataSet.RecordCount;
 
 dbgrideh1.DataSource.DataSet.First;
 
@@ -600,9 +633,15 @@ begin
   Query1.ExecSQL;
 
   DataChanged := false;
+  button4.Enabled := false;
 
   dbgrideh1.DataSource.DataSet.Next;
+
+  ProgressBar1.Position := dbgrideh1.DataSource.DataSet.Recno;
+  Application.ProcessMessages;
 end;
+
+ProgressBar1.Visible := false;
 
 end;
 
@@ -674,13 +713,237 @@ begin
   exit;
 end;
 
+showmessage(inttostr(dbgrideh1.DataSource.Dataset.RecNo));
+
+if dbgrideh1.DataSource.DataSet.RecNo > 0 then
+begin
+  Dbgrideh1.DataSource.DataSet.Edit;
+  Dbgrideh1.DataSource.DataSet.Delete;
+  DataChanged := true;
+  button4.Enabled := true;
+end
+else
+  alert('Нет записей', 'Нет записей для удаления');
+
 end;
 
 procedure Tsn_mat.Button2Click(Sender: TObject);
+
+var
+
+HFile
+: Textfile;
+
+NFile,
+kod,
+text,
+ed,
+col,
+massek,
+massfull
+: String;
+
+FDialog
+: TReplaceFlags;
+
+NMem,
+SType
+: Integer;
+
+OldCursor
+: TCursor;
+
+fL
+: TStringList;
+
 begin
 if ProgressBar1.Visible = true then
   exit;
-  
+
+if dbgrideh1.DataSource.DataSet.RecordCount = 0 then
+begin
+  alert('Пустая спецификация', 'Спецификация не содержит записей');
+  exit;
+end;
+
+(*
+Index1 := 0;
+SType := 0;
+
+with Form15 Do
+begin
+  Caption:='Выберите тип спецификации';
+
+  ListBox1.Items.Add('Общая');
+  ListBox1.Items.Add('Корпусная');
+  ListBox1.Items.Add('Механическая');
+
+  form15.Return_type := false;
+  ShowModal();
+
+  if Index1 <> 0 then
+    SType := Index1;
+end;
+*)
+SType := 1;
+OldCursor := crDefault;
+
+if SType <> 0 then
+begin
+  //showmessage('Вы выбрали ' + inttostr(SType) + ' вид спецификации');
+
+  SaveDialog1.FileName := cb_project.Items[cb_project.ItemIndex]+'_'+cb_specs.Items[cb_specs.ItemIndex];
+  FDialog := [ rfReplaceAll, rfIgnoreCase ];
+
+  if SaveDialog1.Execute then
+  begin
+    NFile := SaveDialog1.FileName;
+    AssignFile(HFile, NFile);
+    Rewrite(HFile);
+    DbGridEh1.DataSource.DataSet.DisableControls;
+    DBGridEh1.DataSource.DataSet.First;
+
+    Query1.Close;
+    Query1.SQL.Text := 'SELECT name FROM SPEC_NAME WHERE spec_id = ' + invi_cb_specs.Items[cb_specs.ItemIndex];
+    Query1.Open;
+
+    Writeln(HFile, '#' + Chr(9) + Chr(9) + TrimRight(TrimLeft(cb_specs.Items[cb_specs.ItemIndex])) + Chr(9) + TrimRight(TrimLeft(Query1.FieldByName('name').asString)) + Chr(9) + Chr(9) + Chr(9) + Chr(9));
+
+    ProgressBar1.Visible := true;
+    ProgressBar1.Max := dbgrideh1.DataSource.DataSet.RecordCount;
+
+    OldCursor := Screen.Cursor;
+    Screen.Cursor := crHourGlass;
+    self.Cursor := Screen.Cursor;
+
+    DbGridEh1.DataSource.DataSet.First;
+    DbGridEh1.DataSource.DataSet.DisableControls;
+
+    Application.ProcessMessages;
+
+    button1.Enabled := false;
+    button2.enabled := false;
+    button3.Enabled := false;
+    button4.enabled := false;
+    button5.enabled := false;
+    button6.Enabled := false;
+
+    while dbgrideh1.DataSource.DataSet.Eof = false do
+    begin
+        if ((pos('Ч', trim(DbGrideh1.DataSource.DataSet.FieldByName('pos').asString)) <> 0) or
+        (pos('-', trim(DbGrideh1.DataSource.DataSet.FieldByName('pos').asString)) <> 0)) then
+          writeln(HFile, inttostr(SType) + Chr(9) + DbGrideh1.DataSource.DataSet.FieldByName('pos').asString + Chr(9)
+          + Chr(9) + TrimRight(TrimLeft('Текст раздела')) + Chr(9) + Chr(9) + Chr(9) + Chr(9))
+        else
+        begin
+          fL := TStringList.Create;
+          try
+            ExtractStrings(['('], [], PChar(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString), fL);
+          except
+            freeandnil(fL);
+            
+            Dbgrideh1.Enabled := true;
+
+            if DataChanged then
+              Button4.Enabled := true;
+
+            if not OnlyReadWE then
+              dbgrideh1.ReadOnly := false;
+
+            button1.Enabled := true;
+            button2.enabled := true;
+            button3.Enabled := true;
+            button5.enabled := true;
+            button6.enabled := true;
+
+            ProgressBar1.Visible := false;
+            DbGridEh1.DataSource.DataSet.EnableControls;
+            Dbgrideh1.Enabled := true;
+            DbGridEh1.DataSource.DataSet.First;
+
+            self.Cursor := crDefault;
+            Screen.Cursor := OldCursor;
+
+            CloseFile(HFile);
+            alert('Ошибка', 'Ошибка парсинга кода материала');
+            exit;
+          end;
+
+          kod := trim(fL[1]);
+          Delete(kod, length(fL[1]), 1);
+
+          text := fL[0];
+          text := TrimRight(text);
+          text := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString + ' ' + text;
+
+          freeandnil(fL);
+
+          col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
+          massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
+          massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', [rfReplaceAll]);
+
+          Query1.Close;
+          Query1.SQL.Text := 'SELECT koded FROM koded WHERE trim(lower(namek)) = '
+          +char(39) + trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])) + char(39);
+          Query1.Open;
+
+          if Query1.RecordCount = 0 then //не нашли код ед. измерения, ставим по умолчанию "ШТУКИ"
+            ed := '796' //код ед. измерения "ШТУКИ"
+          else
+            ed := Query1.FieldByName('koded').AsString;
+          
+          writeln(HFile, inttostr(SType) + Chr(9) + DbGrideh1.DataSource.DataSet.FieldByName('pos').asString + Chr(9)
+          + kod + Chr(9) + text + Chr(9) + ed + Chr(9) + col
+          + Chr(9) + massek + Chr(9) + massfull
+          + Chr(9) + Chr(9) + Chr(9));
+        end;
+
+      dbgrideh1.DataSource.DataSet.Next;
+      ProgressBar1.Position := SType;
+      inc(SType);
+      Application.ProcessMessages;
+    end;
+
+    Dbgrideh1.Enabled := true;
+
+    if DataChanged then
+      Button4.Enabled := true;
+
+    if not OnlyReadWE then
+      dbgrideh1.ReadOnly := false;
+
+    button1.Enabled := true;
+    button2.enabled := true;
+    button3.Enabled := true;
+    button5.enabled := true;
+    button6.enabled := true;
+
+    ProgressBar1.Visible := false;
+    DbGridEh1.DataSource.DataSet.EnableControls;
+    DbGridEh1.DataSource.DataSet.First;
+
+    self.Cursor := crDefault;
+    Screen.Cursor := OldCursor;
+
+    CloseFile(HFile);
+  end;
+
+end;
+
+end;
+
+procedure Tsn_mat.DBGridEh1KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+if key = VK_DELETE then
+  Button6.Click;
+
+end;
+
+procedure Tsn_mat.ClientDataSet1AfterEdit(DataSet: TDataSet);
+begin
+DataChanged := true;
+Button4.Enabled := true;
 end;
 
 end.

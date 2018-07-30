@@ -61,7 +61,7 @@ var
 
 implementation
 
-uses Unit17;
+uses Unit2,Unit17;
 
 {$R *.dfm}
 
@@ -69,7 +69,8 @@ function TForm18.Validate : boolean;
 
 var
 
-temp
+temp,
+error
 : Integer;
 
 begin
@@ -101,9 +102,8 @@ begin
   exit;
 end;
 
-try
-  temp := strtoint(edit12.Text);
-except
+if not form2.strOnlyDigits(trim(edit12.text)) then
+begin
   sn_mat.Alert('Некорретные данные', 'В поле "КОД" разрешены только целочисленные значения!');
   edit12.Color := clRed;
 
@@ -161,7 +161,7 @@ sn_mat.DBGridEh1.DataSource.DataSet.Append;
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := trim(edit1.Text);
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('name').Value := edit2.Text;
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := edit3.Text + ' (' + edit12.Text + ')';
-sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := invi_cb_ed.Items[cb_ed.ItemIndex];
+sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := cb_ed.Items[cb_ed.ItemIndex];
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('col').Value := Trim(Edit5.Text);
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := Trim(edit6.Text);
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('mass.full').Value := Trim(edit7.Text);

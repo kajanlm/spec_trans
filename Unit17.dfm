@@ -1,10 +1,10 @@
 object sn_mat: Tsn_mat
   Left = 371
-  Top = 267
+  Top = 184
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1085#1072#1073#1078#1077#1085#1080#1103
-  ClientHeight = 614
+  ClientHeight = 608
   ClientWidth = 1098
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -125,6 +125,7 @@ object sn_mat: Tsn_mat
     TitleFont.Name = 'MS Sans Serif'
     TitleFont.Style = []
     TitleHeight = 75
+    OnKeyDown = DBGridEh1KeyDown
     Columns = <
       item
         Alignment = taCenter
@@ -244,7 +245,7 @@ object sn_mat: Tsn_mat
     OnClick = cb_specsClick
   end
   object invi_cb_project: TComboBox
-    Left = 208
+    Left = 256
     Top = 720
     Width = 41
     Height = 22
@@ -255,7 +256,7 @@ object sn_mat: Tsn_mat
     OnChange = cb_projectChange
   end
   object invi_cb_specs: TComboBox
-    Left = 208
+    Left = 256
     Top = 712
     Width = 41
     Height = 22
@@ -462,7 +463,12 @@ object sn_mat: Tsn_mat
     IndexDefs = <>
     Params = <>
     StoreDefs = True
+    AfterEdit = ClientDataSet1AfterEdit
     Left = 128
+    Top = 704
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 208
     Top = 704
   end
 end

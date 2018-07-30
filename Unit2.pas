@@ -37,6 +37,7 @@ type
     { Private declarations }
   public
     GLOBAL_LOGIN : string;
+    function strOnlyDigits(str : string) : boolean;
     { Public declarations }
   end;
 
@@ -49,6 +50,20 @@ uses spec, Unit3,  Unit7,Unit8, Unit10,Unit11,Unit13,Unit16, Unit17;
 
 {$R *.dfm}
 
+function TForm2.strOnlyDigits(str : string) : boolean;
+var
+i : integer;
+begin
+
+for i:=1 to length(str) do
+  if not (str[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']) then
+  begin
+    strOnlyDigits := false;
+    exit;
+  end;
+
+strOnlyDigits := true;
+end;
 
 procedure TForm2.N3Click(Sender: TObject);
 begin
