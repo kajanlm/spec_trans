@@ -13,7 +13,7 @@ object Form7: TForm7
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96

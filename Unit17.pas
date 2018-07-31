@@ -274,16 +274,6 @@ if DataChanged then
   alert('Предупреждение', 'Измененная вами спецификация была закрыта без сохранения!');
 
 UnlockCurrentSpec;
-(*
-if invi_cb_specs2.Items[cb_specs.ItemIndex] = '' then
-begin
-  Button4.Enabled := true;
-  alert('Неопределенный тип спецификации', 'Тип данной спецификации не определен, вы можете преобразовать его в '
-  +'"Спефикация снабжения", нажав кнопку "Преобразовать"');
-
-  dbgrideh1.ReadOnly := true;
-end;
-*)
 
 ClearDataSet;
 
@@ -329,9 +319,8 @@ begin
 
   if pos('Ч', query1.FieldByName('poz').asString) = 0 then
   begin
-    tname := copy(query1.FieldByName('name').asString, 1, (pos('[#]', query1.FieldByName('name').asString) - 1));
-    doc := copy(query1.FieldByName('name').asString, (pos('[#]', query1.FieldByName('name').asString) + 3), 50); //extreme value 50
-    doc := doc + ' (' + query1.FieldByName('kod').asString + ')';
+    tname := query1.FieldByName('name').asString;
+    doc := query1.FieldByName('kod').asString;
 
     Query2.Close;
     Query2.SQL.Text := 'SELECT namek FROM koded WHERE koded = ' + query1.FieldByName('ed').asString;
@@ -593,9 +582,6 @@ massek,
 massfull
 : string;
 
-fL
-: TStringList;
-
 OldCursor
 : TCursor;
 
@@ -653,23 +639,8 @@ begin
   end
   else
   begin
-    fL := TStringList.Create;
-    try
-      ExtractStrings(['('], [], PChar(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString), fL);
-    except
-      freeandnil(fL);
-      alert('Ошибка', 'Ошибка парсинга кода материала');
-      exit;
-    end;
-
-    kod := trim(fL[1]);
-    Delete(kod, length(fL[1]), 1);
-
-    tname := fL[0];
-    tname := TrimRight(tname);
-    tname := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString + '[#]' + tname;
-
-    freeandnil(fL);
+    tname := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString;
+    kod := Trim(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString);
 
     col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
     massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
@@ -833,9 +804,6 @@ SType
 OldCursor
 : TCursor;
 
-fL
-: TStringList;
-
 begin
 if ProgressBar1.Visible = true then
   exit;
@@ -846,32 +814,11 @@ begin
   exit;
 end;
 
-(*
-Index1 := 0;
-SType := 0;
-
-with Form15 Do
-begin
-  Caption:='Выберите тип спецификации';
-
-  ListBox1.Items.Add('Общая');
-  ListBox1.Items.Add('Корпусная');
-  ListBox1.Items.Add('Механическая');
-
-  form15.Return_type := false;
-  ShowModal();
-
-  if Index1 <> 0 then
-    SType := Index1;
-end;
-*)
 SType := 1;
 OldCursor := crDefault;
 
 if SType <> 0 then
 begin
-  //showmessage('Вы выбрали ' + inttostr(SType) + ' вид спецификации');
-
   SaveDialog1.FileName := cb_project.Items[cb_project.ItemIndex]+'_'+cb_specs.Items[cb_specs.ItemIndex]+'.txt';
   FDialog := [ rfReplaceAll, rfIgnoreCase ];
 
@@ -916,46 +863,8 @@ begin
           + Chr(9) + TrimRight(TrimLeft(DbGrideh1.DataSource.DataSet.FieldByName('name').asString)))
         else
         begin
-          fL := TStringList.Create;
-          try
-            ExtractStrings(['('], [], PChar(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString), fL);
-          except
-            freeandnil(fL);
-            
-            Dbgrideh1.Enabled := true;
-
-            if DataChanged then
-              Button4.Enabled := true;
-
-            if not OnlyReadWE then
-              dbgrideh1.ReadOnly := false;
-
-            button1.Enabled := true;
-            button2.enabled := true;
-            button3.Enabled := true;
-            button5.enabled := true;
-            button6.enabled := true;
-
-            ProgressBar1.Visible := false;
-            DbGridEh1.DataSource.DataSet.EnableControls;
-            DbGridEh1.DataSource.DataSet.First;
-
-            self.Cursor := crDefault;
-            Screen.Cursor := OldCursor;
-
-            CloseFile(HFile);
-            alert('Ошибка', 'Ошибка парсинга кода материала');
-            exit;
-          end;
-
-          kod := trim(fL[1]);
-          Delete(kod, length(fL[1]), 1);
-
-          text := fL[0];
-          text := TrimRight(text);
-          text := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString + ' ' + text;
-
-          freeandnil(fL);
+          text := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString;
+          kod := Trim(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString);
 
           col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
           massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);

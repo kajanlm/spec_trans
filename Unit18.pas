@@ -168,8 +168,8 @@ sn_mat.Button6.Enabled := true;
 sn_mat.DBGridEh1.DataSource.DataSet.Append;
 
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := trim(edit1.Text);
-sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('name').Value := edit2.Text;
-sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := edit3.Text + ' (' + edit12.Text + ')';
+sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('name').Value := edit2.Text + ' ' + edit3.Text;
+sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('doc').Value := Trim(edit12.Text);
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('ed.izm').Value := cb_ed.Items[cb_ed.ItemIndex];
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('col').Value := Trim(Edit5.Text);
 sn_mat.DbgridEh1.DataSource.DataSet.FieldByName('mass.ek').Value := Trim(edit6.Text);
