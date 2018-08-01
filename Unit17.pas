@@ -451,6 +451,7 @@ begin
   workbookCount := Excel.Worksheets.Count;
   qq := 0;
 
+  Application.CreateForm(TForm15, Form15);
   with Form15 Do
   begin
 
@@ -468,6 +469,7 @@ begin
     if Index1 <> 0 then
       index_list := Index1;
   end;
+  Form15.Free;
 
   if index_list <> 0 then
   begin
@@ -611,7 +613,6 @@ button4.Enabled := false;
 button5.Enabled := false;
 button6.Enabled := false;
 
-
 OldCursor := Screen.Cursor;
 Screen.Cursor := crHourGlass;
 self.Cursor := Screen.Cursor;
@@ -646,9 +647,8 @@ begin
     massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
     massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', [rfReplaceAll]);
 
-    Query1.Close;
-    Query1.SQL.Text := 'SELECT koded FROM koded WHERE trim(lower(namek)) = '
-    +char(39) + trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])) + char(39);
+    Query1.SQL.Text := 'SELECT koded FROM koded WHERE replace(replace(lower(namek),' + char(39) + ' ' + char(39) + ',' + char(39) + char(39) + '), ' + char(39) + '.' + char(39) + ', ' + char(39) + char(39) + ') = '
+    +char(39) + StringReplace(trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])), ' ', '', [rfReplaceAll]) + char(39);
     Query1.Open;
 
     if Query1.RecordCount = 0 then //не нашли код ед. измерения, ставим по умолчанию "ШТУКИ"
@@ -795,7 +795,7 @@ massek,
 massfull
 : String;
 
-FDialog
+ReplaceFlags
 : TReplaceFlags;
 
 SType
@@ -819,8 +819,8 @@ OldCursor := crDefault;
 
 if SType <> 0 then
 begin
-  SaveDialog1.FileName := cb_project.Items[cb_project.ItemIndex]+'_'+cb_specs.Items[cb_specs.ItemIndex]+'.txt';
-  FDialog := [ rfReplaceAll, rfIgnoreCase ];
+  ReplaceFlags := [ rfReplaceAll, rfIgnoreCase ];
+  SaveDialog1.FileName := StringReplace(cb_project.Items[cb_project.ItemIndex]+'_'+cb_specs.Items[cb_specs.ItemIndex]+'.txt', ' ', '', ReplaceFlags);
 
   if SaveDialog1.Execute then
   begin
@@ -834,7 +834,7 @@ begin
     Query1.SQL.Text := 'SELECT name FROM SPEC_NAME WHERE spec_id = ' + invi_cb_specs.Items[cb_specs.ItemIndex];
     Query1.Open;
 
-    Writeln(HFile, '#' + Chr(9) + Chr(9) + TrimRight(TrimLeft(cb_specs.Items[cb_specs.ItemIndex])) + Chr(9) + TrimRight(TrimLeft(Query1.FieldByName('name').asString)) + Chr(9) + Chr(9) + Chr(9) + Chr(9));
+    Writeln(HFile, '#' + Chr(9) + Chr(9) + Trim(cb_specs.Items[cb_specs.ItemIndex]) + Chr(9) + Trim(Query1.FieldByName('name').asString) + Chr(9) + Chr(9) + Chr(9) + Chr(9));
 
     ProgressBar1.Visible := true;
     ProgressBar1.Max := dbgrideh1.DataSource.DataSet.RecordCount;
@@ -866,13 +866,13 @@ begin
           text := dbgrideh1.DataSource.DataSet.FieldByName('name').AsString;
           kod := Trim(dbgrideh1.DataSource.DataSet.FieldByName('doc').asString);
 
-          col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', [rfReplaceAll]);
-          massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', [rfReplaceAll]);
-          massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', [rfReplaceAll]);
+          col := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('col').asString, ',', '.', ReplaceFlags);
+          massek := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.ek').asString, ',', '.', ReplaceFlags);
+          massfull := StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('mass.full').asString, ',', '.', ReplaceFlags);
 
           Query1.Close;
-          Query1.SQL.Text := 'SELECT koded FROM koded WHERE trim(lower(namek)) = '
-          +char(39) + trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', [rfReplaceAll])) + char(39);
+          Query1.SQL.Text := 'SELECT koded FROM koded WHERE replace(replace(lower(namek),' + char(39) + ' ' + char(39) + ',' + char(39) + char(39) + '), ' + char(39) + '.' + char(39) + ', ' + char(39) + char(39) + ') = '
+          +char(39) + StringReplace(trim(StringReplace(dbgrideh1.DataSource.DataSet.FieldByName('ed.izm').asString, '.', '', ReplaceFlags)), ' ', '', ReplaceFlags) + char(39);
           Query1.Open;
 
           if Query1.RecordCount = 0 then //не нашли код ед. измерения, ставим по умолчанию "ШТУКИ"

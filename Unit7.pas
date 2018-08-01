@@ -1158,6 +1158,7 @@ With OpenDialog1 Do
      Application.Terminate;
      end;
     end;
+    Application.CreateForm(TForm15, Form15);
     if  fileNAm<>'' then
       begin
          Excel.Workbooks.Add[fileNAm];
@@ -1335,17 +1336,15 @@ DbgridEh1.DataSource.DataSet.NEXT;
      ProgressBar1.Position:=index;
     end;
 
-
-
      end; //file selected
             Label5.Visible:=false;   ProgressBar1.Visible:=false;
    DbGridEh1.DataSource.DataSet.EnableControls;
    DbGridEh1.DataSource.DataSet.First;
 //   DbGridEh1.DataSource.DataSet.Delete;
-   Excel.Quit;
-    Excel:=Unassigned;  form7.Cursor:=crDefault;
+     form7.Cursor:=crDefault;
 
-
+     Excel.Quit;
+    Excel:=Unassigned;
   Screen.Cursor := OldCursor;
 end;
 end;
