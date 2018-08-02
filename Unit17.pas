@@ -483,7 +483,7 @@ begin
     ProgressBar1.Position := 0;
     ProgressBar1.Visible := true;
     ProgressBar1.Max := Excel.ActiveSheet.UsedRange.Rows.Count;
-    Index := 8;
+    Index := 1;
 
     OldCursor := Screen.Cursor;
     Screen.Cursor := crHourGlass;
@@ -517,6 +517,11 @@ begin
         else
           isOwnItem := false;
 
+        if ( (not isOwnItem) and ((trim(Excel.Cells[index, 3].text) = '') or (trim(Excel.Cells[index, 4].text) = '')) ) then
+              (* ... *)
+        else
+        begin
+
         if not isOwnItem then
         begin
           DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := Excel.Cells[index, 3].Text;
@@ -534,11 +539,14 @@ begin
         else
         begin
           DbgridEh1.DataSource.DataSet.FieldByName('pos').Value := '×' + FSymb;
-          DbgridEh1.DataSource.DataSet.FieldByName('name').Value := trimLeft(TrimRight(copy(Excel.Cells[index, 4].Text,2,length(Excel.Cells[index, 4].Text))));
+          DbgridEh1.DataSource.DataSet.FieldByName('name').Value := trim(copy(Excel.Cells[index, 4].Text, 3, length(Excel.Cells[index, 4].Text)));
         end;
 
         DbgridEh1.DataSource.DataSet.Next;
+        
+        end;
       end;
+
 
       ProgressBar1.Position := index;
       inc (index);

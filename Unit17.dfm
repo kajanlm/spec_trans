@@ -4,7 +4,7 @@ object sn_mat: Tsn_mat
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1085#1072#1073#1078#1077#1085#1080#1103
-  ClientHeight = 608
+  ClientHeight = 607
   ClientWidth = 1098
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -431,15 +431,18 @@ object sn_mat: Tsn_mat
       end
       item
         Name = 'col'
-        DataType = ftFloat
+        DataType = ftString
+        Size = 20
       end
       item
         Name = 'mass.ek'
-        DataType = ftFloat
+        DataType = ftString
+        Size = 20
       end
       item
         Name = 'mass.full'
-        DataType = ftFloat
+        DataType = ftString
+        Size = 20
       end
       item
         Name = 'from'
