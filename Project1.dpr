@@ -25,7 +25,6 @@ uses
 
 begin
   Application.Initialize;
-  //Application.MainFormOnTaskBar := false;
   Application.Title := 'Спецификации';
   Application.CreateForm(TForm2, Form2);
   Application.CreateForm(TForm9, Form9);
@@ -33,7 +32,5 @@ begin
   Application.CreateForm(TForm12, Form12);
   Application.CreateForm(TForm13, Form13);
   Application.CreateForm(TForm14, Form14);
-  //Application.CreateForm(TForm15, Form15);
-  //Application.CreateForm(TForm18, Form18);
   Application.Run;
 end.
