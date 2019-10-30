@@ -1,11 +1,11 @@
 object Form7: TForm7
-  Left = 194
-  Top = 102
+  Left = -3
+  Top = 104
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Form7'
-  ClientHeight = 832
-  ClientWidth = 1446
+  ClientHeight = 829
+  ClientWidth = 1276
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -378,7 +378,7 @@ object Form7: TForm7
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 1176
+    Left = 1128
     Top = 800
     Width = 155
     Height = 25
@@ -387,7 +387,7 @@ object Form7: TForm7
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 1344
+    Left = 300
     Top = 800
     Width = 75
     Height = 25
@@ -396,7 +396,7 @@ object Form7: TForm7
     OnClick = Button4Click
   end
   object Button5: TButton
-    Left = 1024
+    Left = 984
     Top = 800
     Width = 147
     Height = 25

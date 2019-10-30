@@ -852,7 +852,7 @@ end;
 
 procedure TForm7.Button4Click(Sender: TObject);
 var f:textfile;
-FName,CountOfTabs:string;
+FName,CountOfTabs,temp1,temp2,temp3:string;
 flags:TReplaceFlags;
 eee:integer;
 begin
@@ -868,7 +868,13 @@ Rewrite(f);
 DbGridEh1.DataSource.DataSet.DisableControls;
 DBGridEh1.DataSource.DataSet.First;
 ////****zagolovok
- Writeln(f,'#'+Chr(9)+Chr(9)+Chr(9)+DBLookupComboBoxEH2.ListSource.DataSet.FieldByName('nomer').asString+Chr(9)+DBLookupComboBoxEH2.ListSource.DataSet.FieldByName('name').asString+Chr(9)+Chr(9)+Chr(9)+Chr(9));
+
+if combobox1.ItemIndex = 1 then
+  CountOfTabs := Chr(9)+Chr(9)+Chr(9)
+else
+  CountOfTabs := Chr(9)+Chr(9);
+
+Writeln(f, '#' + CountOfTabs + DBLookupComboBoxEH2.ListSource.DataSet.FieldByName('nomer').asString+Chr(9)+DBLookupComboBoxEH2.ListSource.DataSet.FieldByName('name').asString+Chr(9)+Chr(9)+Chr(9)+Chr(9));
 
 
 
@@ -921,16 +927,45 @@ else
             else
                 CountOfTabs := Chr(9);
 
+
+      //08.04.2019 dbgrideh check null (nil);
+      (*
+      if DBGridEh1.DataSource.DataSet.FieldByName('mass_ed').isNull then
+      begin
+        showmessage('error1');
+        temp1 := '';
+      end
+      else*)
+        temp1 := DBGridEh1.DataSource.DataSet.FieldByName('mass_ed').asString;
+
+      (*
+      if DBGridEh1.DataSource.DataSet.FieldByName('mass').isNull then
+      begin
+        showmessage('error2');
+        temp2 := '';
+      end
+      else*)
+        temp2 := DBGridEh1.DataSource.DataSet.FieldByName('mass').asString;
+
+      (*
+      if dbgrideh1.DataSource.DataSet.FieldByName('kod_ved1').isNull then
+      begin
+        showmessage('error3');
+        temp3 := '';
+      end
+      else*)
+        temp3 := dbgrideh1.DataSource.DataSet.FieldByName('kod_ved1').Value;
+
       Writeln(f,trim(DBGridEh1.DataSource.DataSet.FieldByName('Stroka').asString)+Chr(9)+
       trim(DBGridEh1.DataSource.DataSet.FieldByName('poz').asString)+CountOfTabs+
       trim(DBGridEh1.DataSource.DataSet.FieldByName('KOD').asString)+Chr(9)+
       trim(StringReplace(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('NAME').asString,#13,' ',[rfReplaceAll]),#10,' ',[rfReplaceAll]))+Chr(9)+
        trim(DBGridEh1.DataSource.DataSet.FieldByName('ed4').asString)+Chr(9)+
        trim(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('kol').asString,',','.',flags))+Chr(9)+
-       trim(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('mass_ed').asString,',','.',flags))+Chr(9)+
-       trim(StringReplace(DBGridEh1.DataSource.DataSet.FieldByName('mass').asString,',','.',flags))+Chr(9)+Chr(9)+
-       DBGridEh1.DataSource.DataSet.FieldByName('Kod_ved1').Value
-       );
+       trim(StringReplace(temp1,',','.',flags))+Chr(9)+
+       trim(StringReplace(temp2,',','.',flags))+Chr(9)+Chr(9)+
+       temp3
+       ); //DBGridEh1.DataSource.DataSet.FieldByName('Kod_ved1').Value
     end;
   end;
 
